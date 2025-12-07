@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Context>
+    <Parameter name="locale" value="en" override="false" />
+    <Parameter name="loginName" value="yourLoginName" override="false" />
+    <Parameter name="password" value="yourPassword" override="false" />
+    <Parameter name="tileTypes" value="osm,carto,topo" override="false" />
+    <Parameter name="tileURL_osm" value="https://tile.openstreetmap.org/{z}/{x}/{y}.png" override="false" />
+    <Parameter name="tileURL_carto" value="https://tiles.elbdeich25.de/carto/{z}/{x}/{y}.png" override="false" />
+    <Parameter name="tileURL_topo" value="https://tiles.elbdeich25.de/topo/{z}/{x}/{y}.png" override="false" />
+    <Parameter name="elevationURL" value="https://gdalserver.elbe5.de/elevation?longitude={lon}&amp;latitude={lat}" override="false" />
+    <Parameter name="searchURL" value="https://nominatim.openstreetmap.org/search?q={s}&amp;limit=7&amp;format=json" override="false" />
+    <Parameter name="reverseSearchURL" value="https://nominatim.openstreetmap.org/reverse?lat={lat}&amp;lon={lon}&amp;format=json&amp;addressdetails=1" override="false" />
+    <Parameter name="tilePath" value="yourPathToMapTiles" override="false" />
+    <Parameter name="remoteTimeoutSecs" value="30" override="false" />
+</Context>
