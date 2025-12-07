@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Maps">
+    <output-path>$PROJECT_DIR$/out/artifacts/Maps</output-path>
+    <root id="archive" name="ROOT.war">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="Maps" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="baselibs" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="Maps/web/Web" />
+    </root>
+  </artifact>
+</component>

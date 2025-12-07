@@ -1,0 +1,212 @@
+a, a:active, a:hover, a:visited {
+  color: #343a40;
+}
+
+.underlined {
+  border-bottom: 1px solid #343a40;
+}
+
+.centered {
+  text-align: center;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+button {
+  padding: 5px;
+  padding-inline: 5px;
+  padding-block-start: 4px;
+  padding-block-end: 4px;
+  color: #343a40;
+  background-color: transparent;
+  border: 1px solid gray;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+button.primary {
+  border-color: blue;
+  border-width: 2px;
+}
+
+button:focus, a:focus, .btn:focus {
+  outline: 0 !important;
+  box-shadow: none;
+}
+
+input, select, option {
+  font-size: 1rem;
+}
+
+form .formGroup {
+  padding: 0.5rem 0;
+}
+form .formGroup label, form .formGroup input, form .formGroup button, form .formGroup div.append {
+  display: inline-block;
+}
+form .formGroup label {
+  margin-right: 1rem;
+}
+form .formGroup div.append {
+  margin-left: 1rem;
+}
+
+.hint {
+  display: block;
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+dialog {
+  padding: 0;
+  border: 1px solid gray;
+  border-radius: 10px;
+  color: #343a40;
+}
+dialog .dialog.md {
+  min-width: 300px;
+}
+dialog .dialog.lg {
+  min-width: 500px;
+}
+dialog .modalHeader {
+  padding: 1rem 0.5rem 0 0.5rem;
+  height: 2rem;
+  border-bottom: 1px solid gray;
+}
+dialog .modalHeader img.closeIcon {
+  float: right;
+}
+dialog .modalBody {
+  padding: 0.5rem;
+}
+dialog .modalFooter {
+  padding: 0.5rem;
+  height: 2rem;
+  border-top: 1px solid gray;
+}
+
+::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: Helvetica, sans-serif;
+  background: #f0f0f0;
+  color: #343a40;
+  height: 100%;
+  overflow: hidden;
+}
+
+header {
+  background: #e5e8eb url("../img/papier.jpg");
+  display: table;
+  width: 100%;
+  height: 3rem;
+  border-bottom: solid 1px #6c757d;
+}
+header .logo-area {
+  display: table-cell;
+  width: 200px;
+  padding-left: 1rem;
+}
+header .logo-area img {
+  height: 2.5rem;
+}
+header .nav-area {
+  display: table-cell;
+  vertical-align: top;
+}
+header .nav {
+  font-size: 0.8rem;
+  height: 1.2rem;
+  text-align: right;
+  vertical-align: top;
+  padding: 0.1rem 1rem 0.1rem 0;
+}
+header .nav ul {
+  display: table;
+  float: right;
+  list-style: none;
+  padding-inline-start: 0;
+}
+header .nav ul li {
+  display: table-cell;
+  padding: 0 0 0 1rem;
+}
+header .nav ul li a {
+  cursor: pointer;
+}
+header .nav ul li img {
+  width: 16px;
+  height: 16px;
+}
+
+main {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 5rem);
+}
+
+#map {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+#centerCross {
+  position: absolute;
+  left: calc(50% - 10px);
+  top: calc(50% - 10px);
+  width: 20px;
+  height: 20px;
+  z-index: 400;
+}
+
+#centerCross img {
+  width: 20px;
+  height: 20px;
+}
+
+footer {
+  background: #e5e8eb url("../img/papier.jpg");
+  height: 1rem;
+  border-top: solid 1px #6c757d;
+  font-size: 0.8rem;
+}
+
+footer div {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+}
+
+#cookieBanner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: auto;
+  z-index: 1001;
+  border-radius: 0;
+  display: none;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+div.searchResult {
+  padding: 0.5rem;
+}
+
+/*# sourceMappingURL=maps.css.map */
