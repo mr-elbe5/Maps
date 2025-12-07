@@ -104,13 +104,13 @@ const readMapData = () => {
         return;
     }
     let data = JSON.parse(dataString);
-    if (data.zoom)
+    if (data.zoom  && data.zoom !== 'null')
         mapData.zoom = data.zoom;
-    if (data.latitude)
+    if (data.latitude  && data.latitude !== 'null')
         mapData.latitude = data.latitude;
-    if (data.longitude)
+    if (data.longitude  && data.longitude !== 'null')
         mapData.longitude = data.longitude;
-    if (data.tileType)
+    if (data.tileType && data.tileType !== 'null')
         mapData.tileType = data.tileType;
 }
 

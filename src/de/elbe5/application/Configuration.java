@@ -49,7 +49,7 @@ public class Configuration{
                 tileTypes.add(new TileType(type, url));
             }
         }
-        if (tileTypes.isEmpty()){
+        if (!tileTypes.isEmpty()){
             currentTileType = tileTypes.getFirst();
         }
         elevationURL = getSafeString(context, "elevationURL");

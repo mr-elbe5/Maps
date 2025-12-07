@@ -79,7 +79,7 @@
         zoom : <%=Configuration.getStartZoom()%>,
         latitude : <%=Configuration.getStartLatitude()%>,
         longitude : <%=Configuration.getStartLongitude()%>,
-        tileType : '<%=Configuration.getCurrentTileType()%>',
+        tileType : '<%=Configuration.getCurrentTileType().getName()%>',
         searchURL: '<%=Configuration.getSearchURL()%>',
         reverseSearchURL: '<%=Configuration.getReverseSearchURL()%>',
         elevationURL : '<%=Configuration.getElevationURL()%>'
