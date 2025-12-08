@@ -33,6 +33,11 @@
             </a>
         </li>
         <li>
+            <a href="#" onclick="return toggleRouteStarter();" title="<%=$SH("_toggleRouteStarter", locale)%>">
+                <img class="icon" src="/static-content/img/signpost.svg" alt="<%=$SH("_toggleRouteStarter", locale)%>">
+            </a>
+        </li>
+        <li>
             <a href="" onclick="return openModalDialog('/map/openAddTrack');" title="<%=$SH("_addTrack", locale)%>">
                 <img src="/static-content/img/person-walking.svg" alt="<%=$SH("_addTrack", locale)%>">
             </a>

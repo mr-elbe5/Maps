@@ -22,14 +22,12 @@ public class Configuration{
     static String loginName = "";
     static String password = "";
     static String tilePath = "";
-    static String elevationURL = "";
-    static String searchURL = "";
-    static String reverseSearchURL = "";
     static List<TileType> tileTypes = new ArrayList<>();
     static TileType currentTileType = null;
     static int startZoom = 2;
     static double startLatitude = 30.0;
     static double startLongitude = 10.0;
+    static String graphhopperApiKey = "";
     static int remoteTimeoutSecs = 30;
 
     public static void initialize(ServletContext context){
@@ -52,9 +50,7 @@ public class Configuration{
         if (!tileTypes.isEmpty()){
             currentTileType = tileTypes.getFirst();
         }
-        elevationURL = getSafeString(context, "elevationURL");
-        searchURL = getSafeString(context, "searchURL");
-        reverseSearchURL = getSafeString(context, "reverseSearchURL");
+        graphhopperApiKey = getSafeString(context, "graphhopperApiKey");
         remoteTimeoutSecs = StringHelper.getSafeInt(context.getInitParameter("remoteTimeoutSecs"));
         if (remoteTimeoutSecs == 0){
             remoteTimeoutSecs = 30;
@@ -64,26 +60,6 @@ public class Configuration{
     public static String getSafeString(ServletContext servletContext, String key){
         String s=servletContext.getInitParameter(key);
         return s==null ? "" : s;
-    }
-
-    public static int getSafeInt(ServletContext servletContext, String key){
-        String s=servletContext.getInitParameter(key);
-        if (s==null) return 0;
-        try {
-            return Integer.parseInt(s);
-        } catch (Exception ignore) {
-            return 0;
-        }
-    }
-
-    public static boolean getSafeBoolean(ServletContext servletContext, String key){
-        String s=servletContext.getInitParameter(key);
-        if (s==null) return false;
-        try {
-            return Boolean.parseBoolean(s);
-        } catch (Exception ignore) {
-            return false;
-        }
     }
 
     public static String getLoginName() {
@@ -127,16 +103,8 @@ public class Configuration{
         return currentTileType;
     }
 
-    public static String getElevationURL() {
-        return elevationURL;
-    }
-
-    public static String getSearchURL() {
-        return searchURL;
-    }
-
-    public static String getReverseSearchURL() {
-        return reverseSearchURL;
+    public static String getGraphhopperApiKey() {
+        return graphhopperApiKey;
     }
 
     public static int getRemoteTimeoutSecs() {

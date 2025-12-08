@@ -65,7 +65,7 @@ const initializeMapSourceRadios = () => {
 
 const initializeCenterInfo = () => {
     let latlng = map.getCenter();
-    let url = mapData.reverseSearchURL.replace('{lat}', latlng.lat).replace('{lon}', latlng.lng);
+    let url = "https://nominatim.openstreetmap.org/reverse?lat=" + latlng.lat + "&lon=" + latlng.lng + "&format=json&addressdetails=1"
     fetch(url, {
         method: 'GET'
     }).then(
@@ -87,7 +87,7 @@ const initializeCenterInfo = () => {
         }
     });
     document.querySelector('#centerLatlngInfo').innerHTML = getLatLonString(latlng);
-    url = mapData.elevationURL.replace('{lat}', latlng.lat).replace('{lon}', latlng.lng);
+    url = "https://gdalserver.elbe5.de/elevation?longitude=" + latlng.lng + "&latitude=" + latlng.lat;
     fetch(url, {
         method: 'GET'
     }).then(
@@ -131,6 +131,20 @@ const toggleAreaSelector = () => {
         areaSelect.remove();
         areaSelect = null;
     }
+}
+
+// aera selector
+
+const toggleRouteStarter = () => {
+    let routeStarter = document.querySelector('#routeStarter');
+    if (routeStarter.style.display === 'none'){
+        routeStarter.style.display = 'block';
+        resetRoute();
+    }
+    else{
+        routeStarter.style.display = 'none';
+    }
+    return false;
 }
 
 // track dialog
@@ -227,3 +241,25 @@ const setMapSource = () => {
     return false;
 }
 
+//
+
+const resetRoute = () => {
+    document.querySelector('#routeStart').value = '';
+    document.querySelector('#routeEnd').value = '';
+    return false;
+}
+
+const setRouteStart = () => {
+
+    return false;
+}
+
+const setRouteEnd = () => {
+
+    return false;
+}
+
+const calculateRoute = () => {
+
+    return false;
+}

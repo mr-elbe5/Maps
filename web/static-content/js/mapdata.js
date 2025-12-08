@@ -115,13 +115,7 @@ const readMapData = () => {
 }
 
 const saveMapData = () => {
-    let data = {
-        zoom : mapData.zoom,
-        latitude : mapData.latitude,
-        longitude : mapData.longitude,
-        tileType : mapData.tileType
-    }
-    let dataString = JSON.stringify(data);
+    let dataString = JSON.stringify(mapData);
     setCookie("mapData", dataString, 365);
 }
 

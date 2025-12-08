@@ -96,6 +96,22 @@ main {
   height: 20px;
 }
 
+#routeStarter{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  z-index: 410;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  padding: 10px;
+}
+
+#routeResult{
+
+}
+
 footer {
   background: #e5e8eb url(img-path('papier.jpg'));
   height: 1rem;

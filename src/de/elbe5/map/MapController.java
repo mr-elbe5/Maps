@@ -9,10 +9,13 @@
 package de.elbe5.map;
 
 import de.elbe5.application.Configuration;
+import de.elbe5.base.JsonObject;
 import de.elbe5.request.RequestData;
 import de.elbe5.response.ForwardResponse;
 import de.elbe5.response.IResponse;
 import de.elbe5.response.StatusResponse;
+import de.elbe5.route.Route;
+import de.elbe5.route.RouteProvider;
 import de.elbe5.servlet.Controller;
 import de.elbe5.tile.*;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,6 +47,17 @@ public class MapController extends Controller {
 
     public IResponse openSearch(RequestData rdata) {
         return new ForwardResponse("/WEB-INF/_jsp/ajax/search.ajax.jsp");
+    }
+
+    public IResponse requestRoute(RequestData rdata) {
+        double startLat = rdata.getAttributes().getDouble("startLat");
+        double startLon = rdata.getAttributes().getDouble("startLon");
+        double endLat = rdata.getAttributes().getDouble("endLat");
+        double endLon = rdata.getAttributes().getDouble("endLon");
+        Route route = new Route(startLat, startLon, endLat, endLon);
+        JsonObject json = RouteProvider.instance.getRouteInfo(route);
+        rdata.setRequestObject("json", json);
+        return new ForwardResponse("/WEB-INF/_jsp/ajax/routeInfo.ajax.jsp");
     }
 
     public IResponse loadTiles(RequestData rdata) {
