@@ -14,6 +14,7 @@
 <%@ page import="de.elbe5.application.Configuration" %>
 <%@ page import="java.util.Locale" %>
 <%@ page import="de.elbe5.tile.TileType" %>
+<%@ page import="de.elbe5.application.Locales" %>
 <%
     RequestData rdata = RequestData.getRequestData(request);
     Locale locale = rdata.getLocale();
@@ -74,6 +75,7 @@
 </body>
 <script>
     //<![CDATA[
+    let locale = '<%=locale.getLanguage()%>';
     let tileTypes = {}
     <% for (TileType type : Configuration.getTileTypes()){%>
         tileTypes['<%=type.getName()%>'] = '<%=type.getUrlPattern()%>';

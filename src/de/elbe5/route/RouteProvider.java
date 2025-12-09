@@ -9,15 +9,14 @@
 package de.elbe5.route;
 
 import de.elbe5.application.Configuration;
-import de.elbe5.base.JsonObject;
 import de.elbe5.base.Log;
-import org.json.simple.parser.JSONParser;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Locale;
 
 public class RouteProvider {
 
@@ -34,22 +33,24 @@ public class RouteProvider {
                 .build();
     }
 
-    public JsonObject getRouteInfo(Route route) {
-        JsonObject json = null;
+    public String getRouteInfo(Route route, Locale locale) {
+        String json = "";
+        String url = "https://graphhopper.com/api/1/route?key=" + Configuration.getGraphhopperApiKey();
+        String body = route.getRequestBody(locale);
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://graphhopper.com/api/1/route?key=" + Configuration.getGraphhopperApiKey()))
+                    .uri(URI.create(url))
                     .timeout(Duration.ofSeconds(Configuration.getRemoteTimeoutSecs()))
                     .setHeader("User-Agent", "Mozilla/5.0 Firefox/92.0")
                     .setHeader("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200){
                 Log.error("remote server returned status " + response.statusCode());
                 return null;
             }
-            String jsonString = response.body();
-            json = (JsonObject) new JSONParser().parse(jsonString);
+            json = response.body();
         }
         catch (Exception e){
             Log.error("could not receive remote json", e);

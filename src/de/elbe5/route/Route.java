@@ -1,14 +1,45 @@
 package de.elbe5.route;
 
+import java.util.Locale;
+
 public class Route {
+
+    public enum Profile{
+        foot,
+        car
+    }
 
     public double startLatitude = 0;
     public double startLongitude = 0;
     public double endLatitude = 0;
     public double endLongitude = 0;
+    public Profile profile = Profile.foot;
 
-    public boolean gettingStartPoint = false;
-    public boolean gettingEndPoint = false;
+    static String routePattern = """
+            {
+              "points": [
+                [
+                  %f,
+                  %f
+                ],
+                [
+                  %f,
+                  %f
+                ]
+              ],
+              "snap_preventions": [
+                "motorway"
+              ],
+              "details": [
+                "road_class",
+                "surface"
+              ],
+              "profile": "%s",
+              "locale": "%s",
+              "calc_points": true,
+              "points_encoded": false
+            }
+            """;
 
 
     public Route(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
@@ -18,10 +49,8 @@ public class Route {
         this.endLongitude = endLongitude;
     }
 
-    public String getRequestBody(){
-        return "{'elevation':false,'points':[["
-                + startLongitude + "," + startLatitude + "],["
-                + endLongitude + "," + endLatitude + "]],'profile':'foot'}";
+    public String getRequestBody(Locale locale) {
+        return String.format(Locale.ENGLISH, routePattern, startLongitude, startLatitude, endLongitude, endLatitude, profile.name(), locale.getLanguage());
     }
 
 }

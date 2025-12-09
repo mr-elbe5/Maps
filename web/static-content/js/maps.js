@@ -263,7 +263,6 @@ const setRouteCursor = (flag) => {
     else{
         document.querySelector('#map').classList.remove('routeCursor');
     }
-    console.log(document.querySelector('#map').classList)
 }
 
 const setRouteStartMarker = (latlng) => {
@@ -311,7 +310,6 @@ const selectRouteEnd = () => {
     map.off('click');
     setRouteCursor(true);
     map.on('click', (e) =>{
-        console.log(e.latlng);
         document.querySelector('#routeEndLabel').innerHTML = getLatLonString(e.latlng);
         document.querySelector('#routeEndLatitude').value = e.latlng.lat;
         document.querySelector('#routeEndLongitude').value = e.latlng.lng;
@@ -323,8 +321,40 @@ const selectRouteEnd = () => {
 
 const calculateRoute = () => {
     map.off('click');
-
+    let url = "/map/requestRoute?startLat=" +
+        document.querySelector('#routeStartLatitude').value +
+        "&startLon=" +
+        document.querySelector('#routeStartLongitude').value +
+        "&endLat=" +
+        document.querySelector('#routeEndLatitude').value +
+        "&endLon=" +
+        document.querySelector('#routeEndLongitude').value;
+    fetch(url, {
+        method: 'POST'
+    }).then(
+        response => response.json()
+    ).then(json => {
+        if (json && json !== '') {
+            showRoute(json);
+        }
+    });
     return false;
+}
+
+const showRoute = (json) => {
+    let points = json.paths[0].points.coordinates;
+    let reversePoints = [];
+    for (let i= 0; i<points.length; i++){
+        let pnt = points[i];
+        reversePoints[i] = [pnt[1], pnt[0]];
+    }
+    let polyline = new L.Polyline(reversePoints, {
+        color: 'orange',
+        weight: 4,
+        opacity: 0.75,
+        smoothFactor: 1
+    });
+    polyline.addTo(map);
 }
 
 const finishRoute = () => {

@@ -9,10 +9,10 @@
 package de.elbe5.map;
 
 import de.elbe5.application.Configuration;
-import de.elbe5.base.JsonObject;
 import de.elbe5.request.RequestData;
 import de.elbe5.response.ForwardResponse;
 import de.elbe5.response.IResponse;
+import de.elbe5.response.JsonResponse;
 import de.elbe5.response.StatusResponse;
 import de.elbe5.route.Route;
 import de.elbe5.route.RouteProvider;
@@ -55,9 +55,8 @@ public class MapController extends Controller {
         double endLat = rdata.getAttributes().getDouble("endLat");
         double endLon = rdata.getAttributes().getDouble("endLon");
         Route route = new Route(startLat, startLon, endLat, endLon);
-        JsonObject json = RouteProvider.instance.getRouteInfo(route);
-        rdata.setRequestObject("json", json);
-        return new ForwardResponse("/WEB-INF/_jsp/ajax/routeInfo.ajax.jsp");
+        String json = RouteProvider.instance.getRouteInfo(route, rdata.getLocale());
+        return new JsonResponse(json);
     }
 
     public IResponse loadTiles(RequestData rdata) {
