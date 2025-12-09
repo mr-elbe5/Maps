@@ -7,6 +7,41 @@
  You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+class Route{
+    constructor() {
+        let points = [];
+        let instructions = [];
+    }
+
+    initialize(json){
+        this.setPoints(json.paths[0].points.coordinates)
+        this.setInstructions(json.paths[0].instructions)
+    }
+
+    setPoints(coordinates){
+        this.points = [];
+        for (let i= 0; i<coordinates.length; i++){
+            let pnt = coordinates[i];
+            this.points[i] = [pnt[1], pnt[0]];
+        }
+    }
+
+    setInstructions(arr){
+        this.instructions = [];
+        for (let i=0; i<arr.length;i++){
+            let obj = arr[i];
+            let pnt = this.points[obj.interval[0]];
+            this.instructions[i] = {
+                lat: pnt[0],
+                lng: pnt[1],
+                heading: obj.heading,
+                text: obj.text,
+                distance: obj.distance,
+            };
+        }
+    }
+}
+
 const initializeCookieBanner = () => {
     let cookieAccepted = localStorage.getItem("mapsCookieAccepted");
     if (!cookieAccepted)
@@ -335,26 +370,44 @@ const calculateRoute = () => {
         response => response.json()
     ).then(json => {
         if (json && json !== '') {
-            showRoute(json);
+            let route = new Route();
+            route.initialize(json);
+            showRoute(route);
         }
     });
     return false;
 }
 
-const showRoute = (json) => {
-    let points = json.paths[0].points.coordinates;
-    let reversePoints = [];
-    for (let i= 0; i<points.length; i++){
-        let pnt = points[i];
-        reversePoints[i] = [pnt[1], pnt[0]];
-    }
-    let polyline = new L.Polyline(reversePoints, {
+const showRoute = (route) => {
+    console.log(route);
+    let polyline = new L.Polyline(route.points, {
         color: 'orange',
         weight: 4,
         opacity: 0.75,
         smoothFactor: 1
     });
     polyline.addTo(map);
+    let s = '';
+    let container = document.querySelector('#routeInstructions');
+    container.innerHTML = '';
+    for (let i = 0; i<route.instructions.length; i++){
+        let instruction = route.instructions[i];
+        let div = document.createElement('div');
+        div.id = 'instruction_' + i;
+        let content = document.createTextNode(instruction.text);
+        div.appendChild(content);
+        container.appendChild(div);
+        let marker = routeEndMarker = L.marker([instruction.lat, instruction.lng],{
+            icon: routeStartIcon
+        }).addTo(map);
+        marker.on('click', (e) => {
+            for (let j = 0; j < container.children.length; j++){
+                container.children[j].classList.remove('bold');
+            }
+            let div = document.querySelector('#instruction_' + i);
+            div.classList.add('bold');
+        });
+    }
 }
 
 const finishRoute = () => {

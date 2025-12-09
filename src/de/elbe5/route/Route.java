@@ -36,6 +36,7 @@ public class Route {
               ],
               "profile": "%s",
               "locale": "%s",
+              "instructions": true,
               "calc_points": true,
               "points_encoded": false
             }

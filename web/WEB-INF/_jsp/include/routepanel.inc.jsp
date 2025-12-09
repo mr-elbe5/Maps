@@ -33,4 +33,4 @@
   </div>
   <button class="primary" onclick="return calculateRoute();"><%=$SH("_calculate", locale)%></button>
 </form>
-<div id="routeResult"></div>
+<div id="routeInstructions"></div>
