@@ -51,24 +51,8 @@
     <div id="centerCross" style="display: none">
         <a href="#" onclick="openModalDialog('/map/openCenterInfo', initializeCenterInfo);"><img src="/static-content/img/crosshair.svg" alt=""/></a>
     </div>
-    <div id="routeStarter" style="display: none">
-        <h4><%=$SH("_route", locale)%></h4>
-        <form>
-            <button onclick="return setRouteStart();"><%=$SH("_setStartPoint", locale)%></button>
-            <div class="formGroup">
-                <label for="routeStart"><%=$SH("_routeStart", locale)%>
-                </label>
-                <input type="text" name="routeStart" id="routeStart" placeholder="">
-            </div>
-            <button onclick="return setRouteEnd();"><%=$SH("_setEndPoint", locale)%></button>
-            <div class="formGroup">
-                <label for="routeEnd"><%=$SH("_routeEnd", locale)%>
-                </label>
-                <input type="text" name="routeEnd" id="routeEnd" placeholder="">
-            </div>
-            <button class="primary" onclick="return calculateRoute();"><%=$SH("_calculate", locale)%></button>
-        </form>
-        <div id="routeResult"></div>
+    <div id="routePanel" style="display: none">
+        <jsp:include page="/WEB-INF/_jsp/include/routepanel.inc.jsp" flush="true" />
     </div>
 </main>
 <footer>
@@ -111,6 +95,20 @@
     let hash = L.hash(map);
     initializeMapEvents();
     let areaSelect = null;
+    let routeStartIcon = L.icon({
+        iconUrl: '/static-content/img/signpost.svg',
+        iconSize: [24, 24],
+        iconAnchor: [12, 24],
+        className: 'routeStartIcon'
+    });
+    let routeEndIcon = L.icon({
+        iconUrl: '/static-content/img/signpost-fill.svg',
+        iconSize: [24, 24],
+        iconAnchor: [12, 24],
+        className: 'routeEndIcon'
+    });
+    let routeStartMarker = null;
+    let routeEndMarker = null;
     initializeCookieBanner();
     //]]>
 </script>

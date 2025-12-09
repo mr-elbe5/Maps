@@ -135,14 +135,15 @@ const toggleAreaSelector = () => {
 
 // aera selector
 
-const toggleRouteStarter = () => {
-    let routeStarter = document.querySelector('#routeStarter');
-    if (routeStarter.style.display === 'none'){
-        routeStarter.style.display = 'block';
+const toggleRoutePanel = () => {
+    let routePanel = document.querySelector('#routePanel');
+    if (routePanel.style.display === 'none'){
+        routePanel.style.display = 'block';
         resetRoute();
     }
     else{
-        routeStarter.style.display = 'none';
+        routePanel.style.display = 'none';
+        finishRoute();
     }
     return false;
 }
@@ -241,25 +242,92 @@ const setMapSource = () => {
     return false;
 }
 
-//
+// route
 
 const resetRoute = () => {
-    document.querySelector('#routeStart').value = '';
-    document.querySelector('#routeEnd').value = '';
+    document.querySelector('#routeStartLabel').value = '';
+    document.querySelector('#routeStartLatitude').value = 0;
+    document.querySelector('#routeStartLongitude').value = 0;
+    document.querySelector('#routeEndLabel').value = '';
+    document.querySelector('#routeEndLatitude').value = 0;
+    document.querySelector('#routeEndLongitude').value = 0;
+    removeRouteStartMarker();
+    removeRouteEndMarker();
     return false;
 }
 
-const setRouteStart = () => {
+const setRouteCursor = (flag) => {
+    if (flag){
+        document.querySelector('#map').classList.add('routeCursor');
+    }
+    else{
+        document.querySelector('#map').classList.remove('routeCursor');
+    }
+    console.log(document.querySelector('#map').classList)
+}
 
+const setRouteStartMarker = (latlng) => {
+    removeRouteStartMarker();
+    routeStartMarker = L.marker([latlng.lat, latlng.lng],{
+        icon: routeStartIcon
+    }).addTo(map);
+}
+
+const removeRouteStartMarker = () => {
+    if (routeStartMarker){
+        routeStartMarker.remove();
+        routeStartMarker = null;
+    }
+}
+
+const setRouteEndMarker = (latlng) => {
+    removeRouteEndMarker()
+    routeEndMarker = L.marker([latlng.lat, latlng.lng],{
+        icon: routeEndIcon
+    }).addTo(map);
+}
+
+const removeRouteEndMarker = () => {
+    if (routeEndMarker){
+        routeEndMarker.remove();
+        routeEndMarker = null;
+    }
+}
+
+const selectRouteStart = () => {
+    map.off('click');
+    setRouteCursor(true);
+    map.on('click', (e) =>{
+        document.querySelector('#routeStartLabel').innerHTML = getLatLonString(e.latlng);
+        document.querySelector('#routeStartLatitude').value = e.latlng.lat;
+        document.querySelector('#routeStartLongitude').value = e.latlng.lng;
+        setRouteStartMarker(e.latlng);
+        setRouteCursor(false);
+    });
     return false;
 }
 
-const setRouteEnd = () => {
-
+const selectRouteEnd = () => {
+    map.off('click');
+    setRouteCursor(true);
+    map.on('click', (e) =>{
+        console.log(e.latlng);
+        document.querySelector('#routeEndLabel').innerHTML = getLatLonString(e.latlng);
+        document.querySelector('#routeEndLatitude').value = e.latlng.lat;
+        document.querySelector('#routeEndLongitude').value = e.latlng.lng;
+        setRouteEndMarker(e.latlng);
+        setRouteCursor(false);
+    });
     return false;
 }
 
 const calculateRoute = () => {
+    map.off('click');
 
+    return false;
+}
+
+const finishRoute = () => {
+    map.off('click');
     return false;
 }

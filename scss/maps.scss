@@ -96,7 +96,7 @@ main {
   height: 20px;
 }
 
-#routeStarter{
+#routePanel{
   position: absolute;
   top: 0;
   right: 0;
@@ -106,10 +106,23 @@ main {
   overflow: hidden;
   background-color: #f0f0f0;
   padding: 10px;
+  overflow-y: scroll;
 }
 
 #routeResult{
 
+}
+
+.routeStartIcon{
+  color: green;
+}
+
+.routeEndIcon{
+  color: red;
+}
+
+.routeCursor {
+  cursor: pointer !important;
 }
 
 footer {

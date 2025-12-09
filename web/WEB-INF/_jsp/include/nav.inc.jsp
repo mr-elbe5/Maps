@@ -33,8 +33,8 @@
             </a>
         </li>
         <li>
-            <a href="#" onclick="return toggleRouteStarter();" title="<%=$SH("_toggleRouteStarter", locale)%>">
-                <img class="icon" src="/static-content/img/signpost.svg" alt="<%=$SH("_toggleRouteStarter", locale)%>">
+            <a href="#" onclick="return toggleRoutePanel();" title="<%=$SH("_toggleRoutePanel", locale)%>">
+                <img class="icon" src="/static-content/img/signpost.svg" alt="<%=$SH("_toggleRoutePanel", locale)%>">
             </a>
         </li>
         <li>

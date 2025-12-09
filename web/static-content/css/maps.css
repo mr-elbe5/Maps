@@ -2,6 +2,10 @@ a, a:active, a:hover, a:visited {
   color: #343a40;
 }
 
+.bold {
+  font-weight: bold;
+}
+
 .underlined {
   border-bottom: 1px solid #343a40;
 }
@@ -180,7 +184,7 @@ main {
   height: 20px;
 }
 
-#routeStarter {
+#routePanel {
   position: absolute;
   top: 0;
   right: 0;
@@ -190,6 +194,19 @@ main {
   overflow: hidden;
   background-color: #f0f0f0;
   padding: 10px;
+  overflow-y: scroll;
+}
+
+.routeStartIcon {
+  color: green;
+}
+
+.routeEndIcon {
+  color: red;
+}
+
+.routeCursor {
+  cursor: pointer !important;
 }
 
 footer {
