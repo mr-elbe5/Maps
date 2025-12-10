@@ -14,6 +14,7 @@ class Route{
     }
 
     initialize(json){
+        console.log(json);
         this.setPoints(json.paths[0].points.coordinates)
         this.setInstructions(json.paths[0].instructions)
     }
@@ -31,10 +32,12 @@ class Route{
         for (let i=0; i<arr.length;i++){
             let obj = arr[i];
             let pnt = this.points[obj.interval[0]];
+            let sign = (obj.sign <= -1 || ((obj.sign >= 1) && (obj.sign < 4)));
             this.instructions[i] = {
                 lat: pnt[0],
                 lng: pnt[1],
                 heading: obj.heading,
+                sign: sign,
                 text: obj.text,
                 distance: obj.distance,
             };
@@ -337,6 +340,7 @@ const selectRouteStart = () => {
         document.querySelector('#routeStartLongitude').value = e.latlng.lng;
         setRouteStartMarker(e.latlng);
         setRouteCursor(false);
+        setPointInfo(e.latlng, document.querySelector('#routeStartName'));
     });
     return false;
 }
@@ -350,6 +354,7 @@ const selectRouteEnd = () => {
         document.querySelector('#routeEndLongitude').value = e.latlng.lng;
         setRouteEndMarker(e.latlng);
         setRouteCursor(false);
+        setPointInfo(e.latlng, document.querySelector('#routeEndName'));
     });
     return false;
 }
@@ -381,8 +386,8 @@ const calculateRoute = () => {
 const showRoute = (route) => {
     console.log(route);
     let polyline = new L.Polyline(route.points, {
-        color: 'orange',
-        weight: 4,
+        color: 'blue',
+        weight: 3,
         opacity: 0.75,
         smoothFactor: 1
     });
@@ -397,17 +402,45 @@ const showRoute = (route) => {
         let content = document.createTextNode(instruction.text);
         div.appendChild(content);
         container.appendChild(div);
-        let marker = routeEndMarker = L.marker([instruction.lat, instruction.lng],{
-            icon: routeStartIcon
-        }).addTo(map);
-        marker.on('click', (e) => {
-            for (let j = 0; j < container.children.length; j++){
-                container.children[j].classList.remove('bold');
-            }
-            let div = document.querySelector('#instruction_' + i);
-            div.classList.add('bold');
-        });
+        if (instruction.sign){
+            let marker = routeEndMarker = L.marker([instruction.lat, instruction.lng], {
+                icon: signpostIcon
+            }).addTo(map);
+            marker.on('click', (e) => {
+                for (let j = 0; j < container.children.length; j++) {
+                    container.children[j].classList.remove('bold');
+                }
+                let div = document.querySelector('#instruction_' + i);
+                div.classList.add('bold');
+            });
+        }
     }
+}
+
+const setPointInfo = (latlng, target) => {
+    let url = "https://nominatim.openstreetmap.org/reverse?lat=" + latlng.lat + "&lon=" + latlng.lng + "&format=json&addressdetails=1"
+    fetch(url, {
+        method: 'GET'
+    }).then(
+        response => response.json()
+    ).then(json => {
+        if (json) {
+            if (json.address) {
+                let address = getAddress(json.address);
+                let s = "";
+                if (address.street) {
+                    s += address.street;
+                }
+                if (address.city) {
+                    if (s !== ''){
+                        s += ', ';
+                    }
+                    s += address.city;
+                }
+                target.innerHTML = s;
+            }
+        }
+    });
 }
 
 const finishRoute = () => {

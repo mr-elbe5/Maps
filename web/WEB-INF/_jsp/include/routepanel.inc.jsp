@@ -17,19 +17,21 @@
 <form>
   <div class="formGroup">
     <div>
-      <span><%=$SH("_routeStart", locale)%></span>&nbsp;<a href="" onclick="return selectRouteStart();"><%=$SH("_set", locale)%>&nbsp;<img src="/static-content/img/signpost.svg" alt=""/> </a>
+      <span><%=$SH("_routeStart", locale)%></span>&nbsp;<a href="" onclick="return selectRouteStart();"><%=$SH("_set", locale)%>&nbsp;<img src="/static-content/img/marker-green.svg" alt=""/> </a>
     </div>
     <div id="routeStartLabel"></div>
     <input type="hidden" name="routeStartLatitude" id="routeStartLatitude" value="">
     <input type="hidden" name="routeStartLongitude" id="routeStartLongitude" value="">
+    <div id="routeStartName"></div>
   </div>
   <div class="formGroup">
     <div>
-      <span><%=$SH("_routeEnd", locale)%></span>&nbsp;<a href="" onclick="return selectRouteEnd();"><%=$SH("_set", locale)%>&nbsp;<img src="/static-content/img/signpost-fill.svg" alt=""/></a>
+      <span><%=$SH("_routeEnd", locale)%></span>&nbsp;<a href="" onclick="return selectRouteEnd();"><%=$SH("_set", locale)%>&nbsp;<img src="/static-content/img/marker-red.svg" alt=""/></a>
     </div>
     <div id="routeEndLabel"></div>
     <input type="hidden" name="routeEndLatitude" id="routeEndLatitude" value="">
     <input type="hidden" name="routeEndLongitude" id="routeEndLongitude" value="">
+    <div id="routeEndName"></div>
   </div>
   <button class="primary" onclick="return calculateRoute();"><%=$SH("_calculate", locale)%></button>
 </form>
