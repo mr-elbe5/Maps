@@ -14,7 +14,6 @@
 <%@ page import="de.elbe5.application.Configuration" %>
 <%@ page import="java.util.Locale" %>
 <%@ page import="de.elbe5.tile.TileType" %>
-<%@ page import="de.elbe5.application.Locales" %>
 <%
     RequestData rdata = RequestData.getRequestData(request);
     Locale locale = rdata.getLocale();
@@ -34,10 +33,7 @@
     <script type="text/javascript" src="/static-content/js/leaflet.js"></script>
     <script type="text/javascript" src="/static-content/js/leaflet-hash.js"></script>
     <script type="text/javascript" src="/static-content/js/leaflet-areaselect.js"></script>
-    <script type="text/javascript" src="/static-content/js/basics.js?v=3"></script>
-    <script type="text/javascript" src="/static-content/js/mapdata.js?v=3"></script>
-    <script type="text/javascript" src="/static-content/js/route.js?v=3"></script>
-    <script type="text/javascript" src="/static-content/js/maps.js?v=3"></script>
+    <script type="text/javascript" src="/static-content/js/main.js?v=3"></script>
 </head>
 <body>
 <header>

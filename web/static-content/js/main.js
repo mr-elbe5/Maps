@@ -1,0 +1,735 @@
+const getModalDialog = () => {
+    return document.querySelector("dialog");
+};
+
+const openModalDialog = (url, action) => {
+    let modalDialog = getModalDialog();
+    fetch(url, {
+        method: "GET"
+    }).then(response => response.text()).then(text => {
+        if (text && text !== "") {
+            modalDialog.innerHTML = text;
+            modalDialog.showModal();
+            if (action) {
+                action();
+            }
+        }
+    });
+    return false;
+};
+
+const openModalDialogForHtml = (url, json) => {
+    let modalDialog = getModalDialog();
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(json)
+    }).then(response => response.text()).then(text => {
+        if (text && text !== "") {
+            modalDialog.innerHTML = text;
+            modalDialog.showModal();
+        }
+    });
+    return false;
+};
+
+const closeModalDialog = () => {
+    let modalDialog = getModalDialog();
+    modalDialog.innerHTML = "";
+    modalDialog.close();
+    return false;
+};
+
+const postForHtml = (url, target) => {
+    fetch(url, {
+        method: "POST"
+    }).then(response => response.text()).then(text => {
+        target.innerHTML = text;
+    });
+};
+
+const getFormDataFromForm = form => {
+    let formData = new FormData();
+    let hasFiles = false;
+    for (const field of form.elements) {
+        if (field.name) {
+            if (field.type === "file") {
+                console.log("adding files: " + field.files.length);
+                for (i = 0; i < field.files.length; i++) {
+                    let file = field.files[i];
+                    console.log("adding file");
+                    formData.append(field.name, file);
+                    hasFiles = true;
+                }
+            } else {
+                formData.append(field.name, field.value);
+            }
+        }
+    }
+    if (!hasFiles) {
+        return null;
+    }
+    for (let p of formData) {
+        let name = p[0];
+        let value = p[1];
+        console.log(name, value);
+    }
+    return formData;
+};
+
+const postFormAsData = (url, formId) => {
+    const form = document.getElementById(formId);
+    let formData = getFormDataFromForm(form);
+    if (formData) {
+        return postFormData(url, formData);
+    }
+    return false;
+};
+
+const postFormData = (url, formData) => {
+    fetch(url, {
+        method: "POST",
+        body: formData
+    });
+};
+
+const postFormAsDataForHtml = (url, formId, target) => {
+    const form = document.getElementById(formId);
+    let formData = getFormDataFromForm(form);
+    if (formData) {
+        return postFormDataForHtml(url, formData, target);
+    }
+    return false;
+};
+
+const postFormDataForHtml = (url, formData, target) => {
+    fetch(url, {
+        method: "POST",
+        body: formData
+    }).then(response => response.text()).then(text => {
+        target.innerHTML = text;
+    });
+};
+
+const getJsonFromForm = form => {
+    let json = {};
+    for (const field of form.elements) {
+        if (field.name) {
+            json[field.name] = field.value;
+        }
+    }
+    return json;
+};
+
+const postFormAsJson = (url, formId) => {
+    const form = document.getElementById(formId);
+    let json = getJsonFromForm(form);
+    return postJson(url, json);
+};
+
+const postJson = (url, json) => {
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(json)
+    });
+};
+
+const postFormAsJsonForHtml = (url, formId, target) => {
+    const form = document.getElementById(formId);
+    let json = getJsonFromForm(form);
+    return postJsonForHtml(url, json, target);
+};
+
+const postJsonForHtml = (url, json, target) => {
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(json)
+    }).then(response => response.text()).then(text => {
+        target.innerHTML = text;
+    });
+};
+
+const linkTo = url => {
+    window.location.href = url;
+};
+
+const setCookie = (cname, cvalue, exdays) => {
+    const d = new Date();
+    d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1e3);
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+};
+
+const clearCookie = cname => {
+    setCookie(cname, "", 0);
+};
+
+const getCookie = cname => {
+    let name = cname + "=";
+    let ca = document.cookie.split(";");
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === " ") {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+};
+
+const getTileLayerUrl = value => {
+    return "/" + value + "/{z}/{x}/{y}.png";
+};
+
+const format5Decimals = value => {
+    return (Math.floor(value * 1e5) / 1e5).toString();
+};
+
+const getLatLonString = latlng => {
+    let lat = latlng.lat;
+    let latExt = lat >= 0 ? "°N" : "°S";
+    let lng = latlng.lng;
+    let lngExt = lng >= 0 ? "°E" : "°W°";
+    return format5Decimals(Math.abs(latlng.lat)) + latExt + ", " + format5Decimals(Math.abs(latlng.lng)) + lngExt;
+};
+
+const getBoundsString = (sw, ne) => {
+    let swLatExt = sw.lat >= 0 ? "°N" : "°S";
+    let swLngExt = sw.lng >= 0 ? "°E" : "°W°";
+    let neLatExt = ne.lat >= 0 ? "°N" : "°S";
+    let neLngExt = ne.lng >= 0 ? "°E" : "°W°";
+    return format5Decimals(Math.abs(sw.lat)) + swLatExt + " - " + format5Decimals(Math.abs(ne.lat)) + neLatExt + ", " + format5Decimals(Math.abs(sw.lng)) + swLngExt + " - " + format5Decimals(Math.abs(ne.lng)) + neLngExt;
+};
+
+const getAddress = nominatimAddress => {
+    let address = {
+        street: null,
+        city: null
+    };
+    let street = null;
+    let s = nominatimAddress.road;
+    if (!s) {
+        s = nominatimAddress.street;
+    }
+    if (s) {
+        street = s;
+        s = nominatimAddress.house_number;
+        if (s) {
+            street += " " + s;
+        }
+    }
+    if (street) {
+        address.street = street;
+    }
+    let city = null;
+    s = nominatimAddress.postcode;
+    if (s) {
+        city = s;
+    }
+    s = nominatimAddress.city;
+    if (!s) {
+        s = nominatimAddress.town;
+    }
+    if (!s) {
+        s = nominatimAddress.village;
+    }
+    if (city) {
+        city += " " + s;
+    } else {
+        city = s;
+    }
+    if (city) {
+        address.city = city;
+    }
+    return address;
+};
+
+const gpxToLatLngList = xml => {
+    let points = [];
+    let parser = new DOMParser();
+    let xmlDoc = parser.parseFromString(xml, "text/xml");
+    if (!xmlDoc) return points;
+    let track = xmlDoc.getElementsByTagName("trk")[0];
+    if (!track) return points;
+    let trackpoints = track.getElementsByTagName("trkpt");
+    for (let i = 0; i < trackpoints.length; i++) {
+        let trackpoint = trackpoints[i];
+        try {
+            let lat = parseFloat(trackpoint.attributes.getNamedItem("lat").value);
+            let lng = parseFloat(trackpoint.attributes.getNamedItem("lon").value);
+            points.push(new L.latLng(lat, lng));
+        } catch {}
+    }
+    return points;
+};
+
+const readMapData = () => {
+    let dataString = getCookie("mapData");
+    if (!dataString || dataString.length === 0) {
+        return;
+    }
+    let data = JSON.parse(dataString);
+    if (data.zoom && data.zoom !== "null") mapData.zoom = data.zoom;
+    if (data.latitude && data.latitude !== "null") mapData.latitude = data.latitude;
+    if (data.longitude && data.longitude !== "null") mapData.longitude = data.longitude;
+    if (data.tileType && data.tileType !== "null") mapData.tileType = data.tileType;
+};
+
+const saveMapData = () => {
+    let dataString = JSON.stringify(mapData);
+    setCookie("mapData", dataString, 365);
+};
+
+const updateMapData = () => {
+    mapData.zoom = map.getZoom();
+    let latlng = map.getCenter();
+    if (latlng) {
+        mapData.latitude = latlng.lat;
+        mapData.longitude = latlng.lng;
+    }
+};
+
+const cookieAccepted = () => {
+    return localStorage.getItem("mapsCookieAccepted") !== null;
+};
+
+const acceptCookie = () => {
+    localStorage.setItem("mapsCookieAccepted", "yes");
+    let cookieBanner = document.getElementById("cookieBanner");
+    cookieBanner.style.display = "none";
+};
+
+const rejectCookie = () => {
+    localStorage.removeItem("mapsCookieAccepted");
+};
+
+const initializeCookieBanner = () => {
+    let cookieAccepted = localStorage.getItem("mapsCookieAccepted");
+    if (!cookieAccepted) {
+        let cookieBanner = document.getElementById("cookieBanner");
+        cookieBanner.style.display = "block";
+    }
+};
+
+const initializeMapEvents = () => {
+    map.on("move", function() {
+        document.querySelector("#latlng").innerHTML = getLatLonString(map.getCenter());
+    });
+    map.on("moveend", function() {
+        if (cookieAccepted()) {
+            updateMapData();
+            saveMapData();
+        }
+    });
+    map.on("zoomend", function() {
+        if (cookieAccepted()) {
+            updateMapData();
+            saveMapData();
+        }
+    });
+};
+
+const initializeLoadTilesInputs = () => {
+    document.querySelector("#tileType").value = mapData.tileType;
+    let bounds;
+    if (areaSelect) {
+        bounds = areaSelect.getBounds();
+    } else {
+        bounds = map.getBounds();
+    }
+    document.querySelector("#topLatitude").value = Math.min(85, bounds.getNorthWest().lat);
+    document.querySelector("#leftLongitude").value = Math.max(-180, bounds.getNorthWest().lng);
+    document.querySelector("#bottomLatitude").value = Math.max(-85, bounds.getSouthEast().lat);
+    document.querySelector("#rightLongitude").value = Math.min(180, bounds.getSouthEast().lng);
+    document.querySelector("#zoom").value = mapData.zoom;
+};
+
+const initializeMapSourceRadios = () => {
+    var radios = document.getElementsByName("mapSource");
+    let activeRadio = radios[0];
+    for (var i = 0; i < radios.length; i++) {
+        let radio = radios[i];
+        if (radio.value === mapData.tileType) {
+            radio.checked = true;
+            activeRadio = radio;
+            break;
+        }
+    }
+    setTimeout(function() {
+        activeRadio.focus();
+    }, 500);
+};
+
+const initializeCenterInfo = () => {
+    let latlng = map.getCenter();
+    let url = "https://nominatim.openstreetmap.org/reverse?lat=" + latlng.lat + "&lon=" + latlng.lng + "&format=json&addressdetails=1";
+    fetch(url, {
+        method: "GET"
+    }).then(response => response.json()).then(json => {
+        if (json) {
+            if (json.name) {
+                document.querySelector("#centerName").innerHTML = json.name;
+            }
+            if (json.address) {
+                let address = getAddress(json.address);
+                if (address.street) {
+                    document.querySelector("#centerStreet").innerHTML = address.street;
+                }
+                if (address.city) {
+                    document.querySelector("#centerCity").innerHTML = address.city;
+                }
+            }
+        }
+    });
+    document.querySelector("#centerLatlngInfo").innerHTML = getLatLonString(latlng);
+    url = "https://gdalserver.elbe5.de/elevation?longitude=" + latlng.lng + "&latitude=" + latlng.lat;
+    fetch(url, {
+        method: "GET"
+    }).then(response => response.text()).then(text => {
+        if (text) {
+            document.querySelector("#centerAltitude").innerHTML = text + "m";
+        }
+    });
+};
+
+const toggleCenterCross = () => {
+    let centerCross = document.querySelector("#centerCross");
+    if (centerCross.style.display === "none") {
+        centerCross.style.display = "block";
+    } else {
+        centerCross.style.display = "none";
+    }
+    return false;
+};
+
+const toggleAreaSelector = () => {
+    if (areaSelect == null) {
+        areaSelect = L.areaSelect({
+            width: 200,
+            height: 250
+        });
+        areaSelect.on("change", function() {
+            var bounds = this.getBounds();
+            document.querySelector("#latlng").innerHTML = getBoundsString(bounds.getSouthWest(), bounds.getNorthEast());
+        });
+        areaSelect.addTo(map);
+    } else {
+        areaSelect.off("change");
+        areaSelect.remove();
+        areaSelect = null;
+    }
+};
+
+const toggleRoutePanel = () => {
+    let routePanel = document.querySelector("#routePanel");
+    if (routePanel.style.display === "none") {
+        routePanel.style.display = "block";
+        startRoute();
+    } else {
+        routePanel.style.display = "none";
+        finishRoute();
+    }
+    return false;
+};
+
+const addGPXTrack = fileInput => {
+    let input = document.querySelector(fileInput);
+    let file = input.files[0];
+    if (file) {
+        let reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function() {
+            let points = gpxToLatLngList(reader.result);
+            var polyline = new L.Polyline(points, {
+                color: "orange",
+                weight: 4,
+                opacity: .75,
+                smoothFactor: 1
+            });
+            polyline.addTo(map);
+            let boundingbox = polyline.getBounds();
+            map.fitBounds(boundingbox);
+        };
+        reader.onerror = function() {
+            console.log(reader.error);
+        };
+        closeModalDialog();
+    }
+};
+
+const startSearch = () => {
+    let searchString = document.querySelector("#searchInput").value;
+    if (searchString === "") {
+        document.querySelector("#searchResults").innerHTML = "";
+        return;
+    }
+    let url = "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(searchString) + "&limit=7&format=json";
+    fetch(url, {
+        method: "GET"
+    }).then(response => response.json()).then(json => {
+        if (json) {
+            let html = "";
+            for (i = 0; i < json.length; i++) {
+                html += getSearchResultHtml(json[i]);
+            }
+            document.querySelector("#searchResults").innerHTML = html;
+        }
+    });
+    return false;
+};
+
+const getSearchResultHtml = obj => {
+    let s = '<div class="searchResult">';
+    s += '<a href="" ';
+    s += 'onclick="return openSearchResult(';
+    s += obj.lat + "," + obj.lon + "," + obj.boundingbox;
+    s += ');">';
+    s += obj.display_name;
+    s += "</a></div>";
+    return s;
+};
+
+const openSearchResult = (lat, lng, top, bottom, left, right) => {
+    if (left && right && top && bottom) {
+        let boundingbox = [ [ top, left ], [ bottom, right ] ];
+        map.fitBounds(boundingbox);
+    } else {
+        map.panTo(new LatLng(lat, lng));
+    }
+    closeModalDialog();
+    return false;
+};
+
+const setMapSource = () => {
+    let arr = document.getElementsByName("mapSource");
+    let mapSource = mapData.tileType;
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i].checked) {
+            mapSource = arr[i].value;
+            break;
+        }
+    }
+    mapData.tileType = mapSource;
+    if (cookieAccepted()) {
+        saveMapData();
+    }
+    tileLayer.setUrl(getTileLayerUrl(mapSource));
+    closeModalDialog();
+    return false;
+};
+
+const startRoute = () => {
+    L.route = new Route();
+    return false;
+};
+
+const finishRoute = () => {
+    map.off("click");
+    if (L.route) {
+        L.route.reset();
+        L.route = undefined;
+    }
+    return false;
+};
+
+class Route {
+    constructor() {
+        this.points = [];
+        this.instructions = [];
+        this.startMarker = undefined;
+        this.endMarker = undefined;
+        this.polyline = undefined;
+        this.signPosts = [];
+    }
+    fromJson(json) {
+        console.log(json);
+        this.points = [];
+        let coordinates = json.paths[0].points.coordinates;
+        for (let i = 0; i < coordinates.length; i++) {
+            let pnt = coordinates[i];
+            this.points[i] = [ pnt[1], pnt[0] ];
+        }
+        let arr = json.paths[0].instructions;
+        this.instructions = [];
+        for (let i = 0; i < arr.length; i++) {
+            let obj = arr[i];
+            let pnt = this.points[obj.interval[0]];
+            let sign = obj.sign <= -1 || obj.sign >= 1 && obj.sign < 4;
+            this.instructions[i] = {
+                lat: pnt[0],
+                lng: pnt[1],
+                heading: obj.heading,
+                sign: sign,
+                text: obj.text,
+                distance: obj.distance
+            };
+        }
+    }
+    setClickForStart = () => {
+        map.off("click");
+        this.setRouteCursor(true);
+        map.on("click", e => {
+            document.querySelector("#routeStartLabel").innerHTML = getLatLonString(e.latlng);
+            document.querySelector("#routeStartLatitude").value = e.latlng.lat;
+            document.querySelector("#routeStartLongitude").value = e.latlng.lng;
+            this.setStartMarker(e.latlng);
+            this.setRouteCursor(false);
+            this.setMarkerInfo(e.latlng, document.querySelector("#routeStartName"));
+        });
+        return false;
+    };
+    setClickForEnd = () => {
+        map.off("click");
+        this.setRouteCursor(true);
+        map.on("click", e => {
+            document.querySelector("#routeEndLabel").innerHTML = getLatLonString(e.latlng);
+            document.querySelector("#routeEndLatitude").value = e.latlng.lat;
+            document.querySelector("#routeEndLongitude").value = e.latlng.lng;
+            this.setEndMarker(e.latlng);
+            this.setRouteCursor(false);
+            this.setMarkerInfo(e.latlng, document.querySelector("#routeEndName"));
+        });
+        return false;
+    };
+    setRouteCursor = flag => {
+        if (flag) {
+            document.querySelector("#map").classList.add("routeCursor");
+        } else {
+            document.querySelector("#map").classList.remove("routeCursor");
+        }
+    };
+    setStartMarker = latlng => {
+        this.removeStartMarker();
+        this.startMarker = L.marker([ latlng.lat, latlng.lng ], {
+            icon: routeStartIcon
+        }).addTo(map);
+    };
+    removeStartMarker = () => {
+        if (this.startMarker) {
+            this.startMarker.remove();
+            this.startMarker = undefined;
+        }
+    };
+    setEndMarker = latlng => {
+        this.removeEndMarker();
+        this.endMarker = L.marker([ latlng.lat, latlng.lng ], {
+            icon: routeEndIcon
+        }).addTo(map);
+    };
+    removeEndMarker = () => {
+        if (this.endMarker) {
+            this.endMarker.remove();
+            this.endMarker = undefined;
+        }
+    };
+    setMarkerInfo = (latlng, target) => {
+        let url = "https://nominatim.openstreetmap.org/reverse?lat=" + latlng.lat + "&lon=" + latlng.lng + "&format=json&addressdetails=1";
+        fetch(url, {
+            method: "GET"
+        }).then(response => response.json()).then(json => {
+            if (json) {
+                if (json.address) {
+                    let address = getAddress(json.address);
+                    let s = "";
+                    if (address.street) {
+                        s += address.street;
+                    }
+                    if (address.city) {
+                        if (s !== "") {
+                            s += ", ";
+                        }
+                        s += address.city;
+                    }
+                    target.innerHTML = s;
+                }
+            }
+        });
+    };
+    requestRoute = () => {
+        map.off("click");
+        let url = "/map/requestRoute?startLat=" + document.querySelector("#routeStartLatitude").value + "&startLon=" + document.querySelector("#routeStartLongitude").value + "&endLat=" + document.querySelector("#routeEndLatitude").value + "&endLon=" + document.querySelector("#routeEndLongitude").value;
+        fetch(url, {
+            method: "POST"
+        }).then(response => response.json()).then(json => {
+            if (json && json !== "") {
+                this.fromJson(json);
+                this.showRoute();
+            }
+        });
+        return false;
+    };
+    showRoute = () => {
+        this.resetRouteView();
+        this.setPolyline();
+        this.setSignPosts();
+    };
+    setPolyline = () => {
+        this.polyline = new L.Polyline(this.points, {
+            color: "blue",
+            weight: 3,
+            opacity: .75,
+            smoothFactor: 1
+        });
+        this.polyline.addTo(map);
+    };
+    setSignPosts = () => {
+        let s = "";
+        let container = document.querySelector("#routeInstructions");
+        container.innerHTML = "";
+        for (let i = 0; i < this.instructions.length; i++) {
+            let instruction = this.instructions[i];
+            let div = document.createElement("div");
+            div.id = "instruction_" + i;
+            let content = document.createTextNode(instruction.text);
+            div.appendChild(content);
+            container.appendChild(div);
+            if (instruction.sign) {
+                let marker = L.marker([ instruction.lat, instruction.lng ], {
+                    icon: signpostIcon
+                });
+                marker.on("click", e => {
+                    for (let j = 0; j < container.children.length; j++) {
+                        container.children[j].classList.remove("bold");
+                    }
+                    let div = document.querySelector("#instruction_" + i);
+                    div.classList.add("bold");
+                });
+                this.signPosts.push(marker);
+                marker.addTo(map);
+            }
+        }
+    };
+    resetRouteView = () => {
+        for (let i = 0; i < this.signPosts.length; i++) {
+            this.signPosts[i].remove();
+        }
+        this.signPosts = [];
+        if (this.polyline) {
+            this.polyline.remove();
+            this.polyline = undefined;
+        }
+    };
+    reset = () => {
+        this.resetRouteView();
+        this.removeStartMarker();
+        this.removeEndMarker();
+        this.points = [];
+        this.instructions = [];
+        document.querySelector("#routeStartLabel").value = "";
+        document.querySelector("#routeStartLatitude").value = 0;
+        document.querySelector("#routeStartLongitude").value = 0;
+        document.querySelector("#routeEndLabel").value = "";
+        document.querySelector("#routeEndLatitude").value = 0;
+        document.querySelector("#routeEndLongitude").value = 0;
+    };
+}

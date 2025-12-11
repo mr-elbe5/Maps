@@ -6,6 +6,8 @@
     <property file="build.properties"/>
     <property environment="env"/>
 
+    <property name="js.dir" location="web/static-content/js" />
+
     <property name="build.dir" location="build" />
     <property name="buildSrc.dir" location="${build.dir}/src" />
     <property name="buildClasses.dir" location="${build.dir}/classes" />
@@ -53,7 +55,13 @@
         </apply>
     </target>
 
-    <target name="collectFiles" depends="createCss">
+    <target name="createJs" depends="makeDirs">
+        <exec dir="${js.dir}" executable="uglifyjs">
+            <arg line="-b -o main.js src/*.js"/>
+        </exec>
+    </target>
+
+    <target name="collectFiles" depends="createCss, createJs">
         <copy todir="${buildLibs.dir}">
             <fileset dir="lib" />
         </copy>
