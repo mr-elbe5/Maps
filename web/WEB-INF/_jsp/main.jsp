@@ -36,6 +36,7 @@
     <script type="text/javascript" src="/static-content/js/leaflet-areaselect.js"></script>
     <script type="text/javascript" src="/static-content/js/basics.js?v=3"></script>
     <script type="text/javascript" src="/static-content/js/mapdata.js?v=3"></script>
+    <script type="text/javascript" src="/static-content/js/route.js?v=3"></script>
     <script type="text/javascript" src="/static-content/js/maps.js?v=3"></script>
 </head>
 <body>
@@ -73,7 +74,7 @@
     </button>
 </div>
 </body>
-<script>
+<script type="text/javascript">
     //<![CDATA[
     let locale = '<%=locale.getLanguage()%>';
     let tileTypes = {}

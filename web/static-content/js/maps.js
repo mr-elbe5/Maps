@@ -7,44 +7,6 @@
  You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-class Route{
-    constructor() {
-        let points = [];
-        let instructions = [];
-    }
-
-    initialize(json){
-        console.log(json);
-        this.setPoints(json.paths[0].points.coordinates)
-        this.setInstructions(json.paths[0].instructions)
-    }
-
-    setPoints(coordinates){
-        this.points = [];
-        for (let i= 0; i<coordinates.length; i++){
-            let pnt = coordinates[i];
-            this.points[i] = [pnt[1], pnt[0]];
-        }
-    }
-
-    setInstructions(arr){
-        this.instructions = [];
-        for (let i=0; i<arr.length;i++){
-            let obj = arr[i];
-            let pnt = this.points[obj.interval[0]];
-            let sign = (obj.sign <= -1 || ((obj.sign >= 1) && (obj.sign < 4)));
-            this.instructions[i] = {
-                lat: pnt[0],
-                lng: pnt[1],
-                heading: obj.heading,
-                sign: sign,
-                text: obj.text,
-                distance: obj.distance,
-            };
-        }
-    }
-}
-
 const initializeCookieBanner = () => {
     let cookieAccepted = localStorage.getItem("mapsCookieAccepted");
     if (!cookieAccepted)
@@ -177,7 +139,7 @@ const toggleRoutePanel = () => {
     let routePanel = document.querySelector('#routePanel');
     if (routePanel.style.display === 'none'){
         routePanel.style.display = 'block';
-        resetRoute();
+        startRoute();
     }
     else{
         routePanel.style.display = 'none';
@@ -282,168 +244,16 @@ const setMapSource = () => {
 
 // route
 
-const resetRoute = () => {
-    document.querySelector('#routeStartLabel').value = '';
-    document.querySelector('#routeStartLatitude').value = 0;
-    document.querySelector('#routeStartLongitude').value = 0;
-    document.querySelector('#routeEndLabel').value = '';
-    document.querySelector('#routeEndLatitude').value = 0;
-    document.querySelector('#routeEndLongitude').value = 0;
-    removeRouteStartMarker();
-    removeRouteEndMarker();
+const startRoute = () => {
+    L.route = new Route();
     return false;
-}
-
-const setRouteCursor = (flag) => {
-    if (flag){
-        document.querySelector('#map').classList.add('routeCursor');
-    }
-    else{
-        document.querySelector('#map').classList.remove('routeCursor');
-    }
-}
-
-const setRouteStartMarker = (latlng) => {
-    removeRouteStartMarker();
-    routeStartMarker = L.marker([latlng.lat, latlng.lng],{
-        icon: routeStartIcon
-    }).addTo(map);
-}
-
-const removeRouteStartMarker = () => {
-    if (routeStartMarker){
-        routeStartMarker.remove();
-        routeStartMarker = null;
-    }
-}
-
-const setRouteEndMarker = (latlng) => {
-    removeRouteEndMarker()
-    routeEndMarker = L.marker([latlng.lat, latlng.lng],{
-        icon: routeEndIcon
-    }).addTo(map);
-}
-
-const removeRouteEndMarker = () => {
-    if (routeEndMarker){
-        routeEndMarker.remove();
-        routeEndMarker = null;
-    }
-}
-
-const selectRouteStart = () => {
-    map.off('click');
-    setRouteCursor(true);
-    map.on('click', (e) =>{
-        document.querySelector('#routeStartLabel').innerHTML = getLatLonString(e.latlng);
-        document.querySelector('#routeStartLatitude').value = e.latlng.lat;
-        document.querySelector('#routeStartLongitude').value = e.latlng.lng;
-        setRouteStartMarker(e.latlng);
-        setRouteCursor(false);
-        setPointInfo(e.latlng, document.querySelector('#routeStartName'));
-    });
-    return false;
-}
-
-const selectRouteEnd = () => {
-    map.off('click');
-    setRouteCursor(true);
-    map.on('click', (e) =>{
-        document.querySelector('#routeEndLabel').innerHTML = getLatLonString(e.latlng);
-        document.querySelector('#routeEndLatitude').value = e.latlng.lat;
-        document.querySelector('#routeEndLongitude').value = e.latlng.lng;
-        setRouteEndMarker(e.latlng);
-        setRouteCursor(false);
-        setPointInfo(e.latlng, document.querySelector('#routeEndName'));
-    });
-    return false;
-}
-
-const calculateRoute = () => {
-    map.off('click');
-    let url = "/map/requestRoute?startLat=" +
-        document.querySelector('#routeStartLatitude').value +
-        "&startLon=" +
-        document.querySelector('#routeStartLongitude').value +
-        "&endLat=" +
-        document.querySelector('#routeEndLatitude').value +
-        "&endLon=" +
-        document.querySelector('#routeEndLongitude').value;
-    fetch(url, {
-        method: 'POST'
-    }).then(
-        response => response.json()
-    ).then(json => {
-        if (json && json !== '') {
-            let route = new Route();
-            route.initialize(json);
-            showRoute(route);
-        }
-    });
-    return false;
-}
-
-const showRoute = (route) => {
-    console.log(route);
-    let polyline = new L.Polyline(route.points, {
-        color: 'blue',
-        weight: 3,
-        opacity: 0.75,
-        smoothFactor: 1
-    });
-    polyline.addTo(map);
-    let s = '';
-    let container = document.querySelector('#routeInstructions');
-    container.innerHTML = '';
-    for (let i = 0; i<route.instructions.length; i++){
-        let instruction = route.instructions[i];
-        let div = document.createElement('div');
-        div.id = 'instruction_' + i;
-        let content = document.createTextNode(instruction.text);
-        div.appendChild(content);
-        container.appendChild(div);
-        if (instruction.sign){
-            let marker = routeEndMarker = L.marker([instruction.lat, instruction.lng], {
-                icon: signpostIcon
-            }).addTo(map);
-            marker.on('click', (e) => {
-                for (let j = 0; j < container.children.length; j++) {
-                    container.children[j].classList.remove('bold');
-                }
-                let div = document.querySelector('#instruction_' + i);
-                div.classList.add('bold');
-            });
-        }
-    }
-}
-
-const setPointInfo = (latlng, target) => {
-    let url = "https://nominatim.openstreetmap.org/reverse?lat=" + latlng.lat + "&lon=" + latlng.lng + "&format=json&addressdetails=1"
-    fetch(url, {
-        method: 'GET'
-    }).then(
-        response => response.json()
-    ).then(json => {
-        if (json) {
-            if (json.address) {
-                let address = getAddress(json.address);
-                let s = "";
-                if (address.street) {
-                    s += address.street;
-                }
-                if (address.city) {
-                    if (s !== ''){
-                        s += ', ';
-                    }
-                    s += address.city;
-                }
-                target.innerHTML = s;
-            }
-        }
-    });
 }
 
 const finishRoute = () => {
     map.off('click');
+    if (L.route) {
+        L.route.reset();
+        L.route = undefined;
+    }
     return false;
 }
