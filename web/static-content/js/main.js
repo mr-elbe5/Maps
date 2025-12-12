@@ -211,93 +211,39 @@ const getBoundsString = (sw, ne) => {
     return format5Decimals(Math.abs(sw.lat)) + swLatExt + " - " + format5Decimals(Math.abs(ne.lat)) + neLatExt + ", " + format5Decimals(Math.abs(sw.lng)) + swLngExt + " - " + format5Decimals(Math.abs(ne.lng)) + neLngExt;
 };
 
-const getAddress = nominatimAddress => {
-    let address = {
-        street: null,
-        city: null
-    };
-    let street = null;
-    let s = nominatimAddress.road;
-    if (!s) {
-        s = nominatimAddress.street;
+class MapData {
+    constructor(zoom, latitude, longitude, tileType) {
+        this.zoom = zoom;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.tileType = tileType;
     }
-    if (s) {
-        street = s;
-        s = nominatimAddress.house_number;
-        if (s) {
-            street += " " + s;
+    readMapDataCookie = () => {
+        let dataString = getCookie("mapData");
+        if (!dataString || dataString.length === 0) {
+            return;
         }
-    }
-    if (street) {
-        address.street = street;
-    }
-    let city = null;
-    s = nominatimAddress.postcode;
-    if (s) {
-        city = s;
-    }
-    s = nominatimAddress.city;
-    if (!s) {
-        s = nominatimAddress.town;
-    }
-    if (!s) {
-        s = nominatimAddress.village;
-    }
-    if (city) {
-        city += " " + s;
-    } else {
-        city = s;
-    }
-    if (city) {
-        address.city = city;
-    }
-    return address;
-};
+        let data = JSON.parse(dataString);
+        if (data.zoom && data.zoom !== "null") this.zoom = data.zoom;
+        if (data.latitude && data.latitude !== "null") this.latitude = data.latitude;
+        if (data.longitude && data.longitude !== "null") this.longitude = data.longitude;
+        if (data.tileType && data.tileType !== "null") this.tileType = data.tileType;
+    };
+    saveMapData = () => {
+        let dataString = JSON.stringify(this);
+        setCookie("mapData", dataString, 365);
+    };
+    updateMapData = () => {
+        this.zoom = map.getZoom();
+        let latlng = map.getCenter();
+        if (latlng) {
+            this.latitude = latlng.lat;
+            this.longitude = latlng.lng;
+        }
+    };
+}
 
-const gpxToLatLngList = xml => {
-    let points = [];
-    let parser = new DOMParser();
-    let xmlDoc = parser.parseFromString(xml, "text/xml");
-    if (!xmlDoc) return points;
-    let track = xmlDoc.getElementsByTagName("trk")[0];
-    if (!track) return points;
-    let trackpoints = track.getElementsByTagName("trkpt");
-    for (let i = 0; i < trackpoints.length; i++) {
-        let trackpoint = trackpoints[i];
-        try {
-            let lat = parseFloat(trackpoint.attributes.getNamedItem("lat").value);
-            let lng = parseFloat(trackpoint.attributes.getNamedItem("lon").value);
-            points.push(new L.latLng(lat, lng));
-        } catch {}
-    }
-    return points;
-};
-
-const readMapData = () => {
-    let dataString = getCookie("mapData");
-    if (!dataString || dataString.length === 0) {
-        return;
-    }
-    let data = JSON.parse(dataString);
-    if (data.zoom && data.zoom !== "null") mapData.zoom = data.zoom;
-    if (data.latitude && data.latitude !== "null") mapData.latitude = data.latitude;
-    if (data.longitude && data.longitude !== "null") mapData.longitude = data.longitude;
-    if (data.tileType && data.tileType !== "null") mapData.tileType = data.tileType;
-};
-
-const saveMapData = () => {
-    let dataString = JSON.stringify(mapData);
-    setCookie("mapData", dataString, 365);
-};
-
-const updateMapData = () => {
-    mapData.zoom = map.getZoom();
-    let latlng = map.getCenter();
-    if (latlng) {
-        mapData.latitude = latlng.lat;
-        mapData.longitude = latlng.lng;
-    }
-};
+let mapData;
 
 const cookieAccepted = () => {
     return localStorage.getItem("mapsCookieAccepted") !== null;
@@ -327,14 +273,14 @@ const initializeMapEvents = () => {
     });
     map.on("moveend", function() {
         if (cookieAccepted()) {
-            updateMapData();
-            saveMapData();
+            mapData.updateMapData();
+            mapData.saveMapData();
         }
     });
     map.on("zoomend", function() {
         if (cookieAccepted()) {
-            updateMapData();
-            saveMapData();
+            mapData.updateMapData();
+            mapData.saveMapData();
         }
     });
 };
@@ -437,7 +383,6 @@ const toggleRoutePanel = () => {
         startRoute();
     } else {
         routePanel.style.display = "none";
-        finishRoute();
     }
     return false;
 };
@@ -449,16 +394,8 @@ const addGPXTrack = fileInput => {
         let reader = new FileReader();
         reader.readAsText(file, "UTF-8");
         reader.onload = function() {
-            let points = gpxToLatLngList(reader.result);
-            var polyline = new L.Polyline(points, {
-                color: "orange",
-                weight: 4,
-                opacity: .75,
-                smoothFactor: 1
-            });
-            polyline.addTo(map);
-            let boundingbox = polyline.getBounds();
-            map.fitBounds(boundingbox);
+            track.showTrack(reader.result);
+            map.fitBounds(track.getBoundingBox());
         };
         reader.onerror = function() {
             console.log(reader.error);
@@ -467,23 +404,23 @@ const addGPXTrack = fileInput => {
     }
 };
 
+const finishTrack = () => {
+    track.reset();
+    return false;
+};
+
 const startSearch = () => {
     let searchString = document.querySelector("#searchInput").value;
     if (searchString === "") {
         document.querySelector("#searchResults").innerHTML = "";
         return;
     }
-    let url = "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(searchString) + "&limit=7&format=json";
-    fetch(url, {
-        method: "GET"
-    }).then(response => response.json()).then(json => {
-        if (json) {
-            let html = "";
-            for (i = 0; i < json.length; i++) {
-                html += getSearchResultHtml(json[i]);
-            }
-            document.querySelector("#searchResults").innerHTML = html;
+    nominatim.startSearch(searchString, json => {
+        let html = "";
+        for (i = 0; i < json.length; i++) {
+            html += getSearchResultHtml(json[i]);
         }
+        document.querySelector("#searchResults").innerHTML = html;
     });
     return false;
 };
@@ -521,7 +458,7 @@ const setMapSource = () => {
     }
     mapData.tileType = mapSource;
     if (cookieAccepted()) {
-        saveMapData();
+        mapData.saveMapData();
     }
     tileLayer.setUrl(getTileLayerUrl(mapSource));
     closeModalDialog();
@@ -529,18 +466,99 @@ const setMapSource = () => {
 };
 
 const startRoute = () => {
-    L.route = new Route();
+    route.reset();
     return false;
 };
 
 const finishRoute = () => {
     map.off("click");
-    if (L.route) {
-        L.route.reset();
-        L.route = undefined;
-    }
+    route.reset();
     return false;
 };
+
+const clearMapAddons = () => {
+    finishRoute();
+    finishTrack();
+};
+
+const hideRoutePanel = () => {
+    routePanel.style.display = "none";
+};
+
+class Nominatim {
+    startSearch = (searchString, callback) => {
+        if (searchString === "") {
+            document.querySelector("#searchResults").innerHTML = "";
+            return;
+        }
+        let url = "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(searchString) + "&limit=7&format=json";
+        fetch(url, {
+            method: "GET"
+        }).then(response => response.json()).then(json => {
+            if (json) {
+                callback(json);
+            }
+        });
+        return false;
+    };
+    getAddress = nominatimAddress => {
+        let address = {
+            street: null,
+            city: null
+        };
+        let street = null;
+        let s = nominatimAddress.road;
+        if (!s) {
+            s = nominatimAddress.street;
+        }
+        if (s) {
+            street = s;
+            s = nominatimAddress.house_number;
+            if (s) {
+                street += " " + s;
+            }
+        }
+        if (street) {
+            address.street = street;
+        }
+        let city = null;
+        s = nominatimAddress.postcode;
+        if (s) {
+            city = s;
+        }
+        s = nominatimAddress.city;
+        if (!s) {
+            s = nominatimAddress.town;
+        }
+        if (!s) {
+            s = nominatimAddress.village;
+        }
+        if (city) {
+            city += " " + s;
+        } else {
+            city = s;
+        }
+        if (city) {
+            address.city = city;
+        }
+        return address;
+    };
+    findAddress = (latlng, callback) => {
+        let url = "https://nominatim.openstreetmap.org/reverse?lat=" + latlng.lat + "&lon=" + latlng.lng + "&format=json&addressdetails=1";
+        fetch(url, {
+            method: "GET"
+        }).then(response => response.json()).then(json => {
+            if (json) {
+                if (json.address) {
+                    let address = this.getAddress(json.address);
+                    callback(address);
+                }
+            }
+        });
+    };
+}
+
+const nominatim = new Nominatim();
 
 class Route {
     constructor() {
@@ -633,26 +651,18 @@ class Route {
         }
     };
     setMarkerInfo = (latlng, target) => {
-        let url = "https://nominatim.openstreetmap.org/reverse?lat=" + latlng.lat + "&lon=" + latlng.lng + "&format=json&addressdetails=1";
-        fetch(url, {
-            method: "GET"
-        }).then(response => response.json()).then(json => {
-            if (json) {
-                if (json.address) {
-                    let address = getAddress(json.address);
-                    let s = "";
-                    if (address.street) {
-                        s += address.street;
-                    }
-                    if (address.city) {
-                        if (s !== "") {
-                            s += ", ";
-                        }
-                        s += address.city;
-                    }
-                    target.innerHTML = s;
-                }
+        nominatim.findAddress(latlng, address => {
+            let s = "";
+            if (address.street) {
+                s += address.street;
             }
+            if (address.city) {
+                if (s !== "") {
+                    s += ", ";
+                }
+                s += address.city;
+            }
+            target.innerHTML = s;
         });
     };
     requestRoute = () => {
@@ -725,11 +735,67 @@ class Route {
         this.removeEndMarker();
         this.points = [];
         this.instructions = [];
-        document.querySelector("#routeStartLabel").value = "";
+        document.querySelector("#routeStartLabel").innerHTML = "";
         document.querySelector("#routeStartLatitude").value = 0;
         document.querySelector("#routeStartLongitude").value = 0;
-        document.querySelector("#routeEndLabel").value = "";
+        document.querySelector("#routeStartName").innerHTML = "";
+        document.querySelector("#routeEndLabel").innerHTML = "";
         document.querySelector("#routeEndLatitude").value = 0;
         document.querySelector("#routeEndLongitude").value = 0;
+        document.querySelector("#routeEndName").innerHTML = "";
+        document.querySelector("#routeInstructions").innerHTML = "";
     };
 }
+
+const route = new Route();
+
+class Track {
+    constructor() {
+        this.points = [];
+        this.polyLine = undefined;
+    }
+    showTrack = xml => {
+        this.readPoints(xml);
+        this.polyline = new L.Polyline(this.points, {
+            color: "orange",
+            weight: 4,
+            opacity: .75,
+            smoothFactor: 1
+        });
+        this.polyline.addTo(map);
+    };
+    readPoints = xml => {
+        this.points = [];
+        let parser = new DOMParser();
+        let xmlDoc = parser.parseFromString(xml, "text/xml");
+        if (!xmlDoc) return;
+        let track = xmlDoc.getElementsByTagName("trk")[0];
+        if (!track) return;
+        let trackpoints = track.getElementsByTagName("trkpt");
+        for (let i = 0; i < trackpoints.length; i++) {
+            let trackpoint = trackpoints[i];
+            try {
+                let lat = parseFloat(trackpoint.attributes.getNamedItem("lat").value);
+                let lng = parseFloat(trackpoint.attributes.getNamedItem("lon").value);
+                this.points.push(new L.latLng(lat, lng));
+            } catch (err) {
+                console.log(err);
+            }
+        }
+    };
+    getBoundingBox = () => {
+        return this.polyline.getBounds();
+    };
+    resetTrackView = () => {
+        if (this.polyline) {
+            this.polyline.remove();
+            this.polyline = undefined;
+        }
+    };
+    reset = () => {
+        this.resetTrackView();
+        this.points = [];
+    };
+}
+
+const track = new Track();

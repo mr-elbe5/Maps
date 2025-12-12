@@ -197,3 +197,28 @@ const getCookie = (cname) => {
     }
     return "";
 }
+
+const getTileLayerUrl = (value) => {
+    return '/' + value + '/{z}/{x}/{y}.png';
+}
+const format5Decimals = (value) =>{
+    return (Math.floor(value*100000)/100000).toString();
+}
+const getLatLonString = (latlng) => {
+    let lat = latlng.lat;
+    let latExt = lat >= 0 ? '°N' : '°S';
+    let lng = latlng.lng;
+    let lngExt = lng >= 0 ? '°E' : '°W°';
+    return format5Decimals(Math.abs(latlng.lat)) + latExt + ', '
+        + format5Decimals(Math.abs(latlng.lng)) + lngExt;
+}
+const getBoundsString = (sw, ne) => {
+    let swLatExt = sw.lat >= 0 ? '°N' : '°S';
+    let swLngExt = sw.lng >= 0 ? '°E' : '°W°';
+    let neLatExt = ne.lat >= 0 ? '°N' : '°S';
+    let neLngExt = ne.lng >= 0 ? '°E' : '°W°';
+    return format5Decimals(Math.abs(sw.lat)) + swLatExt + ' - '
+        + format5Decimals(Math.abs(ne.lat)) + neLatExt + ', '
+        + format5Decimals(Math.abs(sw.lng)) + swLngExt + ' - '
+        + format5Decimals(Math.abs(ne.lng)) + neLngExt;
+}

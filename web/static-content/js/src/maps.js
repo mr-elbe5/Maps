@@ -7,6 +7,20 @@
  You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+const cookieAccepted = () => {
+    return localStorage.getItem("mapsCookieAccepted") !== null;
+}
+
+const acceptCookie = () => {
+    localStorage.setItem("mapsCookieAccepted", "yes");
+    let cookieBanner = document.getElementById("cookieBanner");
+    cookieBanner.style.display = "none";
+}
+
+const rejectCookie = () => {
+    localStorage.removeItem("mapsCookieAccepted");
+}
+
 const initializeCookieBanner = () => {
     let cookieAccepted = localStorage.getItem("mapsCookieAccepted");
     if (!cookieAccepted)
@@ -22,14 +36,14 @@ const initializeMapEvents = () => {
     });
     map.on('moveend', function () {
         if (cookieAccepted()) {
-            updateMapData();
-            saveMapData();
+            mapData.updateMapData();
+            mapData.saveMapData();
         }
     });
     map.on('zoomend', function () {
         if (cookieAccepted()) {
-            updateMapData();
-            saveMapData();
+            mapData.updateMapData();
+            mapData.saveMapData();
         }
     });
 }
@@ -143,7 +157,6 @@ const toggleRoutePanel = () => {
     }
     else{
         routePanel.style.display = 'none';
-        finishRoute();
     }
     return false;
 }
@@ -157,22 +170,20 @@ const addGPXTrack = (fileInput) => {
         let reader = new FileReader();
         reader.readAsText(file, 'UTF-8');
         reader.onload = function () {
-            let points = gpxToLatLngList(reader.result);
-            var polyline = new L.Polyline(points, {
-                color: 'orange',
-                weight: 4,
-                opacity: 0.75,
-                smoothFactor: 1
-            });
-            polyline.addTo(map);
-            let boundingbox = polyline.getBounds();
-            map.fitBounds(boundingbox);
+            track.showTrack(reader.result);
+
+            map.fitBounds(track.getBoundingBox());
         };
         reader.onerror = function () {
             console.log(reader.error);
         };
         closeModalDialog();
     }
+}
+
+const finishTrack = () => {
+    track.reset();
+    return false;
 }
 
 // search dialog
@@ -183,20 +194,13 @@ const startSearch = () => {
         document.querySelector('#searchResults').innerHTML = '';
         return;
     }
-    let url = "https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(searchString) + "&limit=7&format=json";
-    fetch(url, {
-        method: 'GET'
-    }).then(
-        response => response.json()
-    ).then(json => {
-        if (json) {
-            let html = '';
-            for (i = 0; i < json.length; i++) {
-                html += getSearchResultHtml(json[i]);
-            }
-            document.querySelector('#searchResults').innerHTML = html;
+    nominatim.startSearch(searchString, (json) =>{
+        let html = '';
+        for (i = 0; i < json.length; i++) {
+            html += getSearchResultHtml(json[i]);
         }
-    });
+        document.querySelector('#searchResults').innerHTML = html;
+    })
     return false;
 }
 
@@ -235,7 +239,7 @@ const setMapSource = () => {
     }
     mapData.tileType = mapSource;
     if (cookieAccepted()) {
-        saveMapData();
+        mapData.saveMapData();
     }
     tileLayer.setUrl(getTileLayerUrl(mapSource));
     closeModalDialog();
@@ -245,15 +249,23 @@ const setMapSource = () => {
 // route
 
 const startRoute = () => {
-    L.route = new Route();
+    route.reset();
     return false;
 }
 
 const finishRoute = () => {
     map.off('click');
-    if (L.route) {
-        L.route.reset();
-        L.route = undefined;
-    }
+    route.reset();
     return false;
+}
+
+// general
+
+const clearMapAddons = () => {
+    finishRoute();
+    finishTrack();
+}
+
+const hideRoutePanel = () => {
+    routePanel.style.display = 'none';
 }

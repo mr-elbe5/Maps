@@ -109,29 +109,19 @@ class Route{
     }
 
     setMarkerInfo = (latlng, target) => {
-        let url = "https://nominatim.openstreetmap.org/reverse?lat=" + latlng.lat + "&lon=" + latlng.lng + "&format=json&addressdetails=1"
-        fetch(url, {
-            method: 'GET'
-        }).then(
-            response => response.json()
-        ).then(json => {
-            if (json) {
-                if (json.address) {
-                    let address = getAddress(json.address);
-                    let s = "";
-                    if (address.street) {
-                        s += address.street;
-                    }
-                    if (address.city) {
-                        if (s !== ''){
-                            s += ', ';
-                        }
-                        s += address.city;
-                    }
-                    target.innerHTML = s;
-                }
+        nominatim.findAddress(latlng, (address) =>{
+            let s = "";
+            if (address.street) {
+                s += address.street;
             }
-        });
+            if (address.city) {
+                if (s !== ''){
+                    s += ', ';
+                }
+                s += address.city;
+            }
+            target.innerHTML = s;
+        })
     }
 
     requestRoute = () => {
@@ -219,11 +209,16 @@ class Route{
         this.removeEndMarker();
         this.points = [];
         this.instructions = [];
-        document.querySelector('#routeStartLabel').value = '';
+        document.querySelector('#routeStartLabel').innerHTML = '';
         document.querySelector('#routeStartLatitude').value = 0;
         document.querySelector('#routeStartLongitude').value = 0;
-        document.querySelector('#routeEndLabel').value = '';
+        document.querySelector('#routeStartName').innerHTML = '';
+        document.querySelector('#routeEndLabel').innerHTML = '';
         document.querySelector('#routeEndLatitude').value = 0;
         document.querySelector('#routeEndLongitude').value = 0;
+        document.querySelector('#routeEndName').innerHTML = '';
+        document.querySelector('#routeInstructions').innerHTML = '';
     }
 }
+
+const route = new Route();

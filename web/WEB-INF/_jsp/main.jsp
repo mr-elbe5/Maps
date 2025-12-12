@@ -77,14 +77,13 @@
     <% for (TileType type : Configuration.getTileTypes()){%>
         tileTypes['<%=type.getName()%>'] = '<%=type.getUrlPattern()%>';
     <%}%>
-    let mapData = {
-        zoom : <%=Configuration.getStartZoom()%>,
-        latitude : <%=Configuration.getStartLatitude()%>,
-        longitude : <%=Configuration.getStartLongitude()%>,
-        tileType : '<%=Configuration.getCurrentTileType().getName()%>'
-    }
+    mapData = new MapData(
+        <%=Configuration.getStartZoom()%>,
+        <%=Configuration.getStartLatitude()%>,
+        <%=Configuration.getStartLongitude()%>,
+        '<%=Configuration.getCurrentTileType().getName()%>');
     if (cookieAccepted()){
-        readMapData();
+        mapData.readMapDataCookie();
     }
     let map = L.map('map').setView([mapData.latitude, mapData.longitude], mapData.zoom);
     let tileLayer = L.tileLayer(getTileLayerUrl(mapData.tileType), {

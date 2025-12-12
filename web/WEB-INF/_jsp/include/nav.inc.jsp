@@ -10,7 +10,7 @@
     <ul>
         <%if (rdata.isLoggedIn()) {%>
         <li>
-            <a href="#" onclick="return openModalDialog('/map/loadTiles', initializeLoadTilesInputs);"
+            <a href="#" onclick="clearMapAddons(); hideRoutePanel(); return openModalDialog('/map/loadTiles', initializeLoadTilesInputs);"
                title="<%=$SH("_loadTiles", locale)%>">
                 <img class="icon" src="/static-content/img/download.svg" alt="<%=$SH("_loadTiles", locale)%>">
             </a>
@@ -33,17 +33,17 @@
             </a>
         </li>
         <li>
-            <a href="#" onclick="return toggleRoutePanel();" title="<%=$SH("_toggleRoutePanel", locale)%>">
+            <a href="#" onclick="clearMapAddons(); return toggleRoutePanel();" title="<%=$SH("_toggleRoutePanel", locale)%>">
                 <img class="icon" src="/static-content/img/signpost.svg" alt="<%=$SH("_toggleRoutePanel", locale)%>">
             </a>
         </li>
         <li>
-            <a href="" onclick="return openModalDialog('/map/openAddTrack');" title="<%=$SH("_addTrack", locale)%>">
+            <a href="" onclick="clearMapAddons(); hideRoutePanel(); return openModalDialog('/map/openAddTrack');" title="<%=$SH("_addTrack", locale)%>">
                 <img src="/static-content/img/person-walking.svg" alt="<%=$SH("_addTrack", locale)%>">
             </a>
         </li>
         <li>
-            <a href="" onclick="return openModalDialog('/map/openSearch');" title="<%=$SH("_search", locale)%>">
+            <a href="" onclick="clearMapAddons(); hideRoutePanel(); return openModalDialog('/map/openSearch');" title="<%=$SH("_search", locale)%>">
                 <img src="/static-content/img/search.svg" alt="<%=$SH("_search", locale)%>">
             </a>
         </li>
