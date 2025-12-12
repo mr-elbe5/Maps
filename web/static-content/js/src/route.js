@@ -16,6 +16,24 @@ class Route{
         this.endMarker = undefined;
         this.polyline = undefined;
         this.signPosts = [];
+        this.routeStartIcon = L.icon({
+            iconUrl: '/static-content/img/marker-green.svg',
+            iconSize: [24, 24],
+            iconAnchor: [12, 24],
+            className: 'routeStartIcon'
+        });
+        this.routeEndIcon = L.icon({
+            iconUrl: '/static-content/img/marker-red.svg',
+            iconSize: [24, 24],
+            iconAnchor: [12, 24],
+            className: 'routeEndIcon'
+        });
+        this.signpostIcon = L.icon({
+            iconUrl: '/static-content/img/signpost.svg',
+            iconSize: [16, 16],
+            iconAnchor: [8, 16],
+            className: 'signpostIcon'
+        });
     }
 
     fromJson(json){
@@ -83,7 +101,7 @@ class Route{
     setStartMarker = (latlng) => {
         this.removeStartMarker();
         this.startMarker = L.marker([latlng.lat, latlng.lng],{
-            icon: routeStartIcon
+            icon: this.routeStartIcon
         }).addTo(map);
     }
 
@@ -97,7 +115,7 @@ class Route{
     setEndMarker = (latlng) => {
         this.removeEndMarker()
         this.endMarker = L.marker([latlng.lat, latlng.lng],{
-            icon: routeEndIcon
+            icon: this.routeEndIcon
         }).addTo(map);
     }
 
@@ -177,7 +195,7 @@ class Route{
             container.appendChild(div);
             if (instruction.sign){
                 let marker = L.marker([instruction.lat, instruction.lng], {
-                    icon: signpostIcon
+                    icon: this.signpostIcon
                 });
                 marker.on('click', (e) => {
                     for (let j = 0; j < container.children.length; j++) {

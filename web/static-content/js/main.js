@@ -286,7 +286,11 @@ const initializeMapEvents = () => {
 };
 
 const initializeLoadTilesInputs = () => {
-    document.querySelector("#tileType").value = mapData.tileType;
+    let tileTypeInput = document.querySelector("#tileType");
+    if (!tileTypeInput) {
+        return;
+    }
+    tileTypeInput.value = mapData.tileType;
     let bounds;
     if (areaSelect) {
         bounds = areaSelect.getBounds();
@@ -377,6 +381,7 @@ const toggleAreaSelector = () => {
 };
 
 const toggleRoutePanel = () => {
+    clearMapAddons();
     let routePanel = document.querySelector("#routePanel");
     if (routePanel.style.display === "none") {
         routePanel.style.display = "block";
@@ -568,6 +573,24 @@ class Route {
         this.endMarker = undefined;
         this.polyline = undefined;
         this.signPosts = [];
+        this.routeStartIcon = L.icon({
+            iconUrl: "/static-content/img/marker-green.svg",
+            iconSize: [ 24, 24 ],
+            iconAnchor: [ 12, 24 ],
+            className: "routeStartIcon"
+        });
+        this.routeEndIcon = L.icon({
+            iconUrl: "/static-content/img/marker-red.svg",
+            iconSize: [ 24, 24 ],
+            iconAnchor: [ 12, 24 ],
+            className: "routeEndIcon"
+        });
+        this.signpostIcon = L.icon({
+            iconUrl: "/static-content/img/signpost.svg",
+            iconSize: [ 16, 16 ],
+            iconAnchor: [ 8, 16 ],
+            className: "signpostIcon"
+        });
     }
     fromJson(json) {
         console.log(json);
@@ -629,7 +652,7 @@ class Route {
     setStartMarker = latlng => {
         this.removeStartMarker();
         this.startMarker = L.marker([ latlng.lat, latlng.lng ], {
-            icon: routeStartIcon
+            icon: this.routeStartIcon
         }).addTo(map);
     };
     removeStartMarker = () => {
@@ -641,7 +664,7 @@ class Route {
     setEndMarker = latlng => {
         this.removeEndMarker();
         this.endMarker = L.marker([ latlng.lat, latlng.lng ], {
-            icon: routeEndIcon
+            icon: this.routeEndIcon
         }).addTo(map);
     };
     removeEndMarker = () => {
@@ -705,7 +728,7 @@ class Route {
             container.appendChild(div);
             if (instruction.sign) {
                 let marker = L.marker([ instruction.lat, instruction.lng ], {
-                    icon: signpostIcon
+                    icon: this.signpostIcon
                 });
                 marker.on("click", e => {
                     for (let j = 0; j < container.children.length; j++) {
@@ -758,7 +781,7 @@ class Track {
         this.readPoints(xml);
         this.polyline = new L.Polyline(this.points, {
             color: "orange",
-            weight: 4,
+            weight: 3,
             opacity: .75,
             smoothFactor: 1
         });

@@ -93,38 +93,6 @@
     let hash = L.hash(map);
     initializeMapEvents();
     let areaSelect = null;
-    let routeStartIcon = L.icon({
-        iconUrl: '/static-content/img/marker-green.svg',
-        iconSize: [24, 24],
-        iconAnchor: [12, 24],
-        className: 'routeStartIcon'
-    });
-    let routeEndIcon = L.icon({
-        iconUrl: '/static-content/img/marker-red.svg',
-        iconSize: [24, 24],
-        iconAnchor: [12, 24],
-        className: 'routeEndIcon'
-    });
-    let turnLeftIcon = L.icon({
-        iconUrl: '/static-content/img/sign-turn-left.svg',
-        iconSize: [16, 16],
-        iconAnchor: [8, 16],
-        className: 'turnLeftIcon'
-    });
-    let turnRightIcon = L.icon({
-        iconUrl: '/static-content/img/sign-turn-right.svg',
-        iconSize: [16, 16],
-        iconAnchor: [8, 16],
-        className: 'turnRightIcon'
-    });
-    let signpostIcon = L.icon({
-        iconUrl: '/static-content/img/signpost.svg',
-        iconSize: [16, 16],
-        iconAnchor: [8, 16],
-        className: 'signpostIcon'
-    });
-    let routeStartMarker = null;
-    let routeEndMarker = null;
     initializeCookieBanner();
     //]]>
 </script>

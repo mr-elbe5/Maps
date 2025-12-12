@@ -39,8 +39,10 @@
         <%}%>
     </div>
     <div class="modalFooter">
+        <% if (loader != null){%>
         <button class="primary" onclick="postForHtml('/map/loadTiles', getModalDialog());"><%=$SH("_refreshStatus", locale)%></button>
         <button class="primary" onclick="postForHtml('/map/cancelLoadingTiles', getModalDialog());"><%=$SH("_cancelLoading", locale)%></button>
+        <%}%>
         <button onclick="closeModalDialog()"><%=$SH("_close", locale)%></button>
     </div>
 </div>

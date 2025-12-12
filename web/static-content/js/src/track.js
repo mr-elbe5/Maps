@@ -9,7 +9,7 @@ class Track{
         this.readPoints(xml);
         this.polyline = new L.Polyline(this.points, {
             color: "orange",
-            weight: 4,
+            weight: 3,
             opacity: .75,
             smoothFactor: 1
         });

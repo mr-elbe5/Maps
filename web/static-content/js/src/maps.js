@@ -49,7 +49,11 @@ const initializeMapEvents = () => {
 }
 
 const initializeLoadTilesInputs = () => {
-    document.querySelector('#tileType').value = mapData.tileType;
+    let tileTypeInput = document.querySelector('#tileType');
+    if (!tileTypeInput){
+        return;
+    }
+    tileTypeInput.value = mapData.tileType;
     let bounds;
     if (areaSelect) {
         bounds = areaSelect.getBounds();
@@ -150,6 +154,7 @@ const toggleAreaSelector = () => {
 // aera selector
 
 const toggleRoutePanel = () => {
+    clearMapAddons();
     let routePanel = document.querySelector('#routePanel');
     if (routePanel.style.display === 'none'){
         routePanel.style.display = 'block';
