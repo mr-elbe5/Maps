@@ -1,4 +1,5 @@
-<%@ page import="de.elbe5.request.RequestData" %><%--
+<%@ page import="de.elbe5.request.RequestData" %>
+<%@ page import="de.elbe5.route.Route" %><%--
   Maps - A Java and Leaflet based map viewer and proxy
   Copyright (C) 2009-2025 Michael Roennau
 
@@ -33,6 +34,14 @@
     <input type="hidden" name="routeEndLongitude" id="routeEndLongitude" value="">
     <div id="routeEndName"></div>
   </div>
+  <div class="formGroup">
+    <div><%=$SH("_routeType", locale)%></div>
+    <select name="routeProfile" id="routeProfile">
+      <% for (Route.Profile profile : Route.Profile.values()){%>
+      <option value="<%=profile.name()%>"><%=profile.name()%></option>
+      <%}%>
+    </select>
+  </div>
   <button class="primary" onclick="return route.requestRoute();"><%=$SH("_calculate", locale)%></button>
 </form>
-<div id="routeInstructions"></div>
+<div id="routeInstructions" style="margin-top:1rem;"></div>

@@ -6,6 +6,7 @@ public class Route {
 
     public enum Profile{
         foot,
+        bike,
         car
     }
 
@@ -43,11 +44,12 @@ public class Route {
             """;
 
 
-    public Route(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
+    public Route(double startLatitude, double startLongitude, double endLatitude, double endLongitude, Profile profile) {
         this.startLatitude = startLatitude;
         this.startLongitude = startLongitude;
         this.endLatitude = endLatitude;
         this.endLongitude = endLongitude;
+        this.profile = profile;
     }
 
     public String getRequestBody(Locale locale) {

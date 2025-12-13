@@ -23,6 +23,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="Cache-Control" content="no-cache, must-revalidate"/>
     <title>OSM Maps</title>
     <meta name="keywords" content="osm openstreetmap map elbe5">
     <meta name="description" content="">

@@ -7,11 +7,25 @@
  You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+class WayPoint{
+
+    constructor(lat, lng) {
+        this.lat = lat;
+        this.lng = lng;
+        this.heading = 0;
+        this.sign = '';
+        this.distance = 0;
+        this.surface = '';
+        this.text = '';
+    }
+}
+
 class Route{
 
     constructor() {
+        this.distance = 0;
         this.points = [];
-        this.instructions = [];
+        this.waypoints = [];
         this.startMarker = undefined;
         this.endMarker = undefined;
         this.polyline = undefined;
@@ -20,45 +34,20 @@ class Route{
             iconUrl: '/static-content/img/marker-green.svg',
             iconSize: [24, 24],
             iconAnchor: [12, 24],
-            className: 'routeStartIcon'
+            className: 'routeIcon'
         });
         this.routeEndIcon = L.icon({
             iconUrl: '/static-content/img/marker-red.svg',
             iconSize: [24, 24],
             iconAnchor: [12, 24],
-            className: 'routeEndIcon'
+            className: 'routeIcon'
         });
         this.signpostIcon = L.icon({
             iconUrl: '/static-content/img/signpost.svg',
             iconSize: [16, 16],
             iconAnchor: [8, 16],
-            className: 'signpostIcon'
+            className: 'routeIcon'
         });
-    }
-
-    fromJson(json){
-        console.log(json);
-        this.points = [];
-        let coordinates = json.paths[0].points.coordinates;
-        for (let i= 0; i<coordinates.length; i++){
-            let pnt = coordinates[i];
-            this.points[i] = [pnt[1], pnt[0]];
-        }
-        let arr = json.paths[0].instructions;
-        this.instructions = [];
-        for (let i=0; i<arr.length;i++){
-            let obj = arr[i];
-            let pnt = this.points[obj.interval[0]];
-            let sign = (obj.sign <= -1 || ((obj.sign >= 1) && (obj.sign < 4)));
-            this.instructions[i] = {
-                lat: pnt[0],
-                lng: pnt[1],
-                heading: obj.heading,
-                sign: sign,
-                text: obj.text,
-                distance: obj.distance,
-            };
-        }
     }
 
     setClickForStart = () => {
@@ -151,7 +140,9 @@ class Route{
             "&endLat=" +
             document.querySelector('#routeEndLatitude').value +
             "&endLon=" +
-            document.querySelector('#routeEndLongitude').value;
+            document.querySelector('#routeEndLongitude').value +
+            "&profile=" +
+            document.querySelector('#routeProfile').value;
         fetch(url, {
             method: 'POST'
         }).then(
@@ -166,10 +157,51 @@ class Route{
         return false;
     }
 
+    fromJson(json){
+        this.points = [];
+        this.waypoints = [];
+        let path = json.paths[0]
+        this.distance = Math.round(path.distance);
+        let coordinates = path.points.coordinates;
+        for (let i= 0; i<coordinates.length; i++){
+            let coord = coordinates[i];
+            this.points.push([coord[1], coord[0]]) ;
+        }
+        let arr = path.instructions;
+        for (let i=0; i<arr.length;i++) {
+            let obj = arr[i];
+            let pnt = this.points[obj.interval[0]];
+            if (pnt) {
+                let waypoint = new WayPoint(pnt[0], pnt[1])
+                switch (obj.sign){
+                    case -1:
+                    case -2:
+                    case -3:
+                        waypoint.sign = 'sign-turn-left';
+                        break;
+                    case 0:
+                        waypoint.sign = 'straight';
+                        break;
+                    case 1:
+                    case 2:
+                    case 3:
+                        waypoint.sign = 'sign-turn-right';
+                        break;
+                }
+                waypoint.heading = obj.heading;
+                waypoint.text = obj.text;
+                waypoint.distance = Math.round(obj.distance);
+                waypoint.surface = obj.surface;
+                this.waypoints.push(waypoint);
+            }
+        }
+    }
+
     showRoute = () => {
         this.resetRouteView()
         this.setPolyline();
         this.setSignPosts();
+        this.setInstructions();
     }
 
     setPolyline = () => {
@@ -183,30 +215,56 @@ class Route{
     }
 
     setSignPosts = () => {
-        let s = '';
         let container = document.querySelector('#routeInstructions');
-        container.innerHTML = '';
-        for (let i = 0; i<this.instructions.length; i++){
-            let instruction = this.instructions[i];
-            let div = document.createElement('div');
-            div.id = 'instruction_' + i;
-            let content = document.createTextNode(instruction.text);
-            div.appendChild(content);
-            container.appendChild(div);
-            if (instruction.sign){
-                let marker = L.marker([instruction.lat, instruction.lng], {
+        for (let i = 0; i<this.waypoints.length; i++){
+            let waypoint = this.waypoints[i];
+            if (waypoint.sign !== ''){
+                let marker = L.marker([waypoint.lat, waypoint.lng], {
                     icon: this.signpostIcon
                 });
                 marker.on('click', (e) => {
                     for (let j = 0; j < container.children.length; j++) {
                         container.children[j].classList.remove('bold');
                     }
-                    let div = document.querySelector('#instruction_' + i);
+                    let div = document.querySelector('#waypoint_' + i);
                     div.classList.add('bold');
                 });
                 this.signPosts.push(marker);
                 marker.addTo(map);
             }
+        }
+    }
+
+    setInstructions = () => {
+        let container = document.querySelector('#routeInstructions');
+        container.innerHTML = '';
+        let div = document.createElement('div');
+        let content = document.createTextNode(this.distance + 'm');
+        div.appendChild(content);
+        div.style = 'margin-bottom:0.5rem'
+        container.appendChild(div);
+        let lastDistance = 0;
+        for (let i = 0; i<this.waypoints.length; i++){
+            let waypoint = this.waypoints[i];
+            if (lastDistance !== 0){
+                div = document.createElement('div');
+                content = document.createTextNode(lastDistance + 'm:');
+                div.appendChild(content);
+                container.appendChild(div);
+            }
+            div = document.createElement('div');
+            div.id = 'waypoint_' + i;
+            if (waypoint.sign !== '') {
+                let icon = document.createElement('img');
+                icon.src = '/static-content/img/' + waypoint.sign + '.svg';
+                icon.alt = '';
+                icon.style = 'margin-right:10px'
+                div.appendChild(icon);
+            }
+            content = document.createTextNode(waypoint.text);
+            div.appendChild(content);
+            container.appendChild(div);
+            lastDistance = waypoint.distance;
         }
     }
 

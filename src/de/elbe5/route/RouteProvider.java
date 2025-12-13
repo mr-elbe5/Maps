@@ -37,6 +37,7 @@ public class RouteProvider {
         String json = "";
         String url = "https://graphhopper.com/api/1/route?key=" + Configuration.getGraphhopperApiKey();
         String body = route.getRequestBody(locale);
+        Log.info(body);
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))

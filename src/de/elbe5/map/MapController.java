@@ -9,6 +9,7 @@
 package de.elbe5.map;
 
 import de.elbe5.application.Configuration;
+import de.elbe5.base.Log;
 import de.elbe5.request.RequestData;
 import de.elbe5.response.ForwardResponse;
 import de.elbe5.response.IResponse;
@@ -54,7 +55,16 @@ public class MapController extends Controller {
         double startLon = rdata.getAttributes().getDouble("startLon");
         double endLat = rdata.getAttributes().getDouble("endLat");
         double endLon = rdata.getAttributes().getDouble("endLon");
-        Route route = new Route(startLat, startLon, endLat, endLon);
+        String profileString = rdata.getAttributes().getString("profile");
+        Route.Profile profile;
+        try{
+            profile = Route.Profile.valueOf(profileString);
+        }
+        catch(IllegalArgumentException e){
+            Log.error("got wrong profile: " + profileString, e);
+            profile = Route.Profile.car;
+        }
+        Route route = new Route(startLat, startLon, endLat, endLon, profile);
         String json = RouteProvider.instance.getRouteInfo(route, rdata.getLocale());
         return new JsonResponse(json);
     }
