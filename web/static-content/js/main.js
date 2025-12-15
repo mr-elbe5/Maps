@@ -211,6 +211,10 @@ const getBoundsString = (sw, ne) => {
     return format5Decimals(Math.abs(sw.lat)) + swLatExt + " - " + format5Decimals(Math.abs(ne.lat)) + neLatExt + ", " + format5Decimals(Math.abs(sw.lng)) + swLngExt + " - " + format5Decimals(Math.abs(ne.lng)) + neLngExt;
 };
 
+const toLatLng = lnglat => {
+    return [ lnglat[1], lnglat[0] ];
+};
+
 class MapData {
     constructor(zoom, latitude, longitude, tileType) {
         this.zoom = zoom;
@@ -566,9 +570,9 @@ class Nominatim {
 const nominatim = new Nominatim();
 
 class WayPoint {
-    constructor(lat, lng) {
-        this.lat = lat;
-        this.lng = lng;
+    constructor(latlng) {
+        this.lat = latlng[0];
+        this.lng = latlng[1];
         this.heading = 0;
         this.sign = "";
         this.distance = 0;
@@ -679,7 +683,8 @@ class Route {
     };
     requestRoute = () => {
         map.off("click");
-        let url = "/map/requestRoute?startLat=" + document.querySelector("#routeStartLatitude").value + "&startLon=" + document.querySelector("#routeStartLongitude").value + "&endLat=" + document.querySelector("#routeEndLatitude").value + "&endLon=" + document.querySelector("#routeEndLongitude").value + "&profile=" + document.querySelector("#routeProfile").value;
+        let url = "https://routing.openstreetmap.de/routed-" + document.querySelector("#routeProfile").value + "/route/v1/driving/" + document.querySelector("#routeStartLongitude").value + "," + document.querySelector("#routeStartLatitude").value + ";" + document.querySelector("#routeEndLongitude").value + "," + document.querySelector("#routeEndLatitude").value + "?overview=false&alternatives=false&generate_hints=false&steps=true";
+        console.log(url);
         fetch(url, {
             method: "POST"
         }).then(response => response.json()).then(json => {
@@ -691,6 +696,72 @@ class Route {
         return false;
     };
     fromJson(json) {
+        this.points = [];
+        this.waypoints = [];
+        console.log(json);
+        console.log("------------");
+        let leg = json.routes[0].legs[0];
+        this.distance = Math.round(leg.distance);
+        let steps = leg.steps;
+        console.log("steps: " + steps.length);
+        for (let i = 0; i < steps.length; i++) {
+            let step = steps[i];
+            let intersections = step.intersections;
+            for (let j = 0; j < intersections.length; j++) {
+                let intersection = intersections[j];
+                this.points.push(toLatLng(intersection.location));
+            }
+            let maneuver = step.maneuver;
+            let waypoint = new WayPoint(toLatLng(maneuver.location));
+            waypoint.distance = step.distance;
+            waypoint.text = step.name;
+            switch (maneuver.modifier) {
+              case "left":
+              case "slight-left":
+                waypoint.sign = "sign-turn-left";
+                if (waypoint.text.length === 0) {
+                    waypoint.text = strings[locale].turnLeft;
+                } else {
+                    waypoint.text = strings[locale].turnLeftTo + waypoint.text;
+                }
+                break;
+
+              case "right":
+              case "slight-right":
+                waypoint.sign = "sign-turn-right";
+                if (waypoint.text.length === 0) {
+                    waypoint.text = strings[locale].turnRight;
+                } else {
+                    waypoint.text = strings[locale].turnRightTo + waypoint.text;
+                }
+                break;
+
+              default:
+                waypoint.sign = "straight";
+                if (waypoint.text.length === 0) {
+                    waypoint.text = strings[locale].goAhead;
+                } else {
+                    waypoint.text = strings[locale].goAheadTo + waypoint.text;
+                }
+                break;
+            }
+            this.waypoints.push(waypoint);
+        }
+    }
+    requestRouteByGraphhopper = () => {
+        map.off("click");
+        let url = "/map/requestRoute?startLat=" + document.querySelector("#routeStartLatitude").value + "&startLon=" + document.querySelector("#routeStartLongitude").value + "&endLat=" + document.querySelector("#routeEndLatitude").value + "&endLon=" + document.querySelector("#routeEndLongitude").value + "&profile=" + document.querySelector("#routeProfile").value;
+        fetch(url, {
+            method: "POST"
+        }).then(response => response.json()).then(json => {
+            if (json && json !== "") {
+                this.fromGrashopperJson(json);
+                this.showRoute();
+            }
+        });
+        return false;
+    };
+    fromGrashpperJson(json) {
         this.points = [];
         this.waypoints = [];
         let path = json.paths[0];
@@ -705,7 +776,7 @@ class Route {
             let obj = arr[i];
             let pnt = this.points[obj.interval[0]];
             if (pnt) {
-                let waypoint = new WayPoint(pnt[0], pnt[1]);
+                let waypoint = new WayPoint(pnt);
                 switch (obj.sign) {
                   case -1:
                   case -2:
@@ -827,6 +898,25 @@ class Route {
 }
 
 const route = new Route();
+
+const strings = {
+    de: {
+        turnLeft: "nach links",
+        turnRight: "nach rechts",
+        goAhead: "weiter geradeaus",
+        turnLeftTo: "nach links nach ",
+        turnRightTo: "nach rechts nach ",
+        goAheadTo: "geradeaus auf "
+    },
+    en: {
+        turnLeft: "turn left",
+        turnRight: "turn right",
+        goAhead: "go ahead",
+        turnLeftTo: "turn left to ",
+        turnRightTo: "turn right to ",
+        goAheadTo: "straight ahead on "
+    }
+};
 
 class Track {
     constructor() {

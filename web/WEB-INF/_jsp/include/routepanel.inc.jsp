@@ -38,7 +38,7 @@
     <div><%=$SH("_routeType", locale)%></div>
     <select name="routeProfile" id="routeProfile">
       <% for (Route.Profile profile : Route.Profile.values()){%>
-      <option value="<%=profile.name()%>"><%=profile.name()%></option>
+      <option value="<%=profile.name()%>"><%=$SH('_'+profile.name(),locale)%></option>
       <%}%>
     </select>
   </div>

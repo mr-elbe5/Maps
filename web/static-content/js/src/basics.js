@@ -222,3 +222,7 @@ const getBoundsString = (sw, ne) => {
         + format5Decimals(Math.abs(sw.lng)) + swLngExt + ' - '
         + format5Decimals(Math.abs(ne.lng)) + neLngExt;
 }
+
+const toLatLng = (lnglat) => {
+    return [lnglat[1], lnglat[0]];
+}
