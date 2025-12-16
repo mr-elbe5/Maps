@@ -42,7 +42,6 @@
       <option value="car"><%=$SH("_car",locale)%></option>
     </select>
   </div>
-  <button class="primary" onclick="return route.requestRouteFromOSRM();"><%=$SH("_calculateWith", locale)%> OSRM</button>
-  <button class="primary" style="margin-top:0.5rem;" onclick="return route.requestRouteFromGraphhopper();"><%=$SH("_calculateWith", locale)%> Graphhopper</button>
+  <button class="primary" onclick="return route.requestRoute();"><%=$SH("_calculate", locale)%></button>
 </form>
 <div id="routeInstructions" style="margin-top:1rem;"></div>

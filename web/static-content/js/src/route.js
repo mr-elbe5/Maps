@@ -132,7 +132,7 @@ class Route{
         })
     }
 
-    requestRouteFromOSRM = () => {
+    requestRoute = () => {
         map.off('click');
         let url = "https://routing.openstreetmap.de/routed-" +
             document.querySelector('#routeProfile').value +
@@ -151,7 +151,7 @@ class Route{
             response => response.json()
         ).then(json => {
             if (json && json !== '') {
-                this.fromOSRMJson(json);
+                this.fromJson(json);
                 this.showRoute();
 
             }
@@ -159,7 +159,7 @@ class Route{
         return false;
     }
 
-    fromOSRMJson(json){
+    fromJson(json){
         console.log(json);
         this.points = [];
         this.waypoints = [];
@@ -184,7 +184,12 @@ class Route{
                 waypoint.sign = '';
                 waypoint.text = strings[locale].arrivedAt + step.name;
             } else {
-                waypoint.text = step.name;
+                if (step.name && step.name !== ''){
+                    waypoint.text = step.name;
+                }
+                else if (step.ref && step.ref !== ''){
+                    waypoint.text = step.ref;
+                }
                 switch (maneuver.modifier) {
                     case 'left':
                     case 'slight-left':
@@ -223,74 +228,6 @@ class Route{
                 }
             }
             this.waypoints.push(waypoint);
-        }
-    }
-
-    requestRouteFromGraphhopper = () => {
-        map.off('click');
-        let url = "/map/requestRoute?startLat=" +
-            document.querySelector('#routeStartLatitude').value +
-            "&startLon=" +
-            document.querySelector('#routeStartLongitude').value +
-            "&endLat=" +
-            document.querySelector('#routeEndLatitude').value +
-            "&endLon=" +
-            document.querySelector('#routeEndLongitude').value +
-            "&profile=" +
-            document.querySelector('#routeProfile').value;
-        fetch(url, {
-            method: 'POST'
-        }).then(
-            response => response.json()
-        ).then(json => {
-            if (json && json !== '') {
-                this.fromGraphhopperJson(json);
-                this.showRoute();
-
-            }
-        });
-        return false;
-    }
-
-    fromGraphhopperJson = (json) => {
-        this.points = [];
-        this.waypoints = [];
-        let path = json.paths[0]
-        this.distance = Math.round(path.distance);
-        let coordinates = path.points.coordinates;
-        for (let i= 0; i<coordinates.length; i++){
-            let coord = coordinates[i];
-            this.points.push([coord[1], coord[0]]) ;
-        }
-        let arr = path.instructions;
-        for (let i=0; i<arr.length;i++) {
-            let obj = arr[i];
-            let pnt = this.points[obj.interval[0]];
-            if (pnt) {
-                let waypoint = new WayPoint(pnt)
-                switch (obj.sign){
-                    case -1:
-                    case -2:
-                    case -3:
-                        waypoint.sign = 'sign-turn-left';
-                        break;
-                    case 0:
-                        if (i>0) {
-                            waypoint.sign = 'straight';
-                        }
-                        break;
-                    case 1:
-                    case 2:
-                    case 3:
-                        waypoint.sign = 'sign-turn-right';
-                        break;
-                }
-                waypoint.heading = obj.heading;
-                waypoint.text = obj.text;
-                waypoint.distance = Math.round(obj.distance);
-                waypoint.surface = obj.surface;
-                this.waypoints.push(waypoint);
-            }
         }
     }
 

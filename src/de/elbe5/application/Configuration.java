@@ -27,7 +27,6 @@ public class Configuration{
     static int startZoom = 2;
     static double startLatitude = 30.0;
     static double startLongitude = 10.0;
-    static String graphhopperApiKey = "";
     static int remoteTimeoutSecs = 30;
 
     public static void initialize(ServletContext context){
@@ -50,7 +49,6 @@ public class Configuration{
         if (!tileTypes.isEmpty()){
             currentTileType = tileTypes.getFirst();
         }
-        graphhopperApiKey = getSafeString(context, "graphhopperApiKey");
         remoteTimeoutSecs = StringHelper.getSafeInt(context.getInitParameter("remoteTimeoutSecs"));
         if (remoteTimeoutSecs == 0){
             remoteTimeoutSecs = 30;
@@ -101,10 +99,6 @@ public class Configuration{
 
     public static TileType getCurrentTileType() {
         return currentTileType;
-    }
-
-    public static String getGraphhopperApiKey() {
-        return graphhopperApiKey;
     }
 
     public static int getRemoteTimeoutSecs() {
