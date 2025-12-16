@@ -160,7 +160,7 @@ class Route{
     }
 
     fromJson(json){
-        console.log(json);
+        //console.log(json);
         this.points = [];
         this.waypoints = [];
         let leg = json.routes[0].legs[0];

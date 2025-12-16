@@ -198,16 +198,8 @@ main {
   overflow-y: scroll;
 }
 
-.routeStartIcon {
-  color: green;
-}
-
-.routeEndIcon {
-  color: red;
-}
-
 .routeCursor {
-  cursor: pointer !important;
+  cursor: crosshair !important;
 }
 
 footer {
