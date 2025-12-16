@@ -223,6 +223,20 @@ const getBoundsString = (sw, ne) => {
         + format5Decimals(Math.abs(ne.lng)) + neLngExt;
 }
 
+const getDurationString = (secs) => {
+    if (secs < 60){
+        return secs + 's';
+    }
+    let m = Math.floor(secs/60);
+    let s = secs % 60;
+    if (m < 60){
+        return m + 'm ' + s + 's';
+    }
+    let h = Math.floor(m/60);
+    m = m % 60;
+    return h + 'h ' + m + 'm ' + s + 's';
+}
+
 const toLatLng = (lnglat) => {
     return [lnglat[1], lnglat[0]];
 }

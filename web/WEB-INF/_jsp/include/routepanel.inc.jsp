@@ -1,5 +1,4 @@
-<%@ page import="de.elbe5.request.RequestData" %>
-<%@ page import="de.elbe5.route.Route" %><%--
+<%--
   Maps - A Java and Leaflet based map viewer and proxy
   Copyright (C) 2009-2025 Michael Roennau
 
@@ -9,6 +8,7 @@
 --%>
 <%response.setContentType("text/html;charset=UTF-8");%>
 <%@ page trimDirectiveWhitespaces="true" %>
+<%@ page import="de.elbe5.request.RequestData" %>
 <%@include file="/WEB-INF/_jsp/include/functions.inc.jsp" %>
 <%
   RequestData rdata = RequestData.getRequestData(request);
@@ -37,11 +37,12 @@
   <div class="formGroup">
     <div><%=$SH("_routeType", locale)%></div>
     <select name="routeProfile" id="routeProfile">
-      <% for (Route.Profile profile : Route.Profile.values()){%>
-      <option value="<%=profile.name()%>"><%=$SH('_'+profile.name(),locale)%></option>
-      <%}%>
+      <option value="foot"><%=$SH("_foot",locale)%></option>
+      <option value="bike"><%=$SH("_bike",locale)%></option>
+      <option value="car"><%=$SH("_car",locale)%></option>
     </select>
   </div>
-  <button class="primary" onclick="return route.requestRoute();"><%=$SH("_calculate", locale)%></button>
+  <button class="primary" onclick="return route.requestRouteFromOSRM();"><%=$SH("_calculateWith", locale)%> OSRM</button>
+  <button class="primary" style="margin-top:0.5rem;" onclick="return route.requestRouteFromGraphhopper();"><%=$SH("_calculateWith", locale)%> Graphhopper</button>
 </form>
 <div id="routeInstructions" style="margin-top:1rem;"></div>

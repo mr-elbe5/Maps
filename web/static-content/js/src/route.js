@@ -24,6 +24,7 @@ class Route{
 
     constructor() {
         this.distance = 0;
+        this.duration = 0;
         this.points = [];
         this.waypoints = [];
         this.startMarker = undefined;
@@ -131,7 +132,7 @@ class Route{
         })
     }
 
-    requestRoute = () => {
+    requestRouteFromOSRM = () => {
         map.off('click');
         let url = "https://routing.openstreetmap.de/routed-" +
             document.querySelector('#routeProfile').value +
@@ -143,15 +144,14 @@ class Route{
             document.querySelector('#routeEndLongitude').value +
             "," +
             document.querySelector('#routeEndLatitude').value +
-            "?overview=false&alternatives=false&generate_hints=false&steps=true";
-        console.log(url);
+            "?overview=false&geometries=geojson&generate_hints=false&steps=true";
         fetch(url, {
             method: 'POST'
         }).then(
             response => response.json()
         ).then(json => {
             if (json && json !== '') {
-                this.fromJson(json);
+                this.fromOSRMJson(json);
                 this.showRoute();
 
             }
@@ -159,62 +159,74 @@ class Route{
         return false;
     }
 
-    fromJson(json){
+    fromOSRMJson(json){
+        console.log(json);
         this.points = [];
         this.waypoints = [];
-        console.log(json);
-        console.log('------------');
         let leg = json.routes[0].legs[0];
         this.distance = Math.round(leg.distance);
+        this.duration = Math.round(leg.duration);
         let steps = leg.steps;
-        console.log('steps: ' + steps.length);
-        for (let i=0;i<steps.length;i++){
+        for (let i=0;i<steps.length;i++) {
             let step = steps[i];
-            let intersections = step.intersections;
-            for (let j=0;j<intersections.length;j++){
-                let intersection = intersections[j];
-                this.points.push(toLatLng(intersection.location));
+            let coordinates = step.geometry.coordinates;
+            for (let j = 0; j < coordinates.length; j++) {
+                let coordinate = coordinates[j];
+                this.points.push(toLatLng(coordinate));
             }
             let maneuver = step.maneuver;
             let waypoint = new WayPoint(toLatLng(maneuver.location));
-            waypoint.distance = step.distance;
-            waypoint.text = step.name;
-            switch (maneuver.modifier){
-                case 'left':
-                case 'slight-left':
-                    waypoint.sign = 'sign-turn-left';
-                    if (waypoint.text.length === 0){
-                        waypoint.text = strings[locale].turnLeft;
-                    }
-                    else{
-                        waypoint.text = strings[locale].turnLeftTo + waypoint.text;
-                    }
-                    break;
-                case 'right':
-                case 'slight-right':
-                    waypoint.sign = 'sign-turn-right';
-                    if (waypoint.text.length === 0){
-                        waypoint.text = strings[locale].turnRight;
-                    }
-                    else{
-                        waypoint.text = strings[locale].turnRightTo + waypoint.text;
-                    }
-                    break;
-                default:
-                    waypoint.sign = 'straight';
-                    if (waypoint.text.length === 0){
-                        waypoint.text = strings[locale].goAhead;
-                    }
-                    else{
-                        waypoint.text = strings[locale].goAheadTo + waypoint.text;
-                    }
-                    break;
+            waypoint.distance = Math.floor(step.distance);
+            if (maneuver.type === 'depart') {
+                waypoint.sign = '';
+                waypoint.text = strings[locale].startOn + step.name;
+            } else if (maneuver.type === 'arrive') {
+                waypoint.sign = '';
+                waypoint.text = strings[locale].arrivedAt + step.name;
+            } else {
+                waypoint.text = step.name;
+                switch (maneuver.modifier) {
+                    case 'left':
+                    case 'slight-left':
+                        waypoint.sign = 'sign-turn-left';
+                        if (waypoint.text.length === 0) {
+                            waypoint.text = strings[locale].turnLeft;
+                        } else {
+                            waypoint.text = strings[locale].turnLeftTo + waypoint.text;
+                        }
+                        break;
+                    case 'right':
+                    case 'slight-right':
+                        waypoint.sign = 'sign-turn-right';
+                        if (waypoint.text.length === 0) {
+                            waypoint.text = strings[locale].turnRight;
+                        } else {
+                            waypoint.text = strings[locale].turnRightTo + waypoint.text;
+                        }
+                        break;
+                    case 'uturn':
+                        waypoint.sign = 'sign-turn-left';
+                        if (waypoint.text.length === 0) {
+                            waypoint.text = strings[locale].uturn;
+                        } else {
+                            waypoint.text = strings[locale].uturnTo + waypoint.text;
+                        }
+                        break;
+                    default:
+                        waypoint.sign = 'straight';
+                        if (waypoint.text.length === 0) {
+                            waypoint.text = strings[locale].straightAhead;
+                        } else {
+                            waypoint.text = strings[locale].straightAheadTo + waypoint.text;
+                        }
+                        break;
+                }
             }
             this.waypoints.push(waypoint);
         }
     }
 
-    requestRouteByGraphhopper = () => {
+    requestRouteFromGraphhopper = () => {
         map.off('click');
         let url = "/map/requestRoute?startLat=" +
             document.querySelector('#routeStartLatitude').value +
@@ -232,7 +244,7 @@ class Route{
             response => response.json()
         ).then(json => {
             if (json && json !== '') {
-                this.fromGrashopperJson(json);
+                this.fromGraphhopperJson(json);
                 this.showRoute();
 
             }
@@ -240,7 +252,7 @@ class Route{
         return false;
     }
 
-    fromGrashpperJson(json){
+    fromGraphhopperJson = (json) => {
         this.points = [];
         this.waypoints = [];
         let path = json.paths[0]
@@ -263,7 +275,9 @@ class Route{
                         waypoint.sign = 'sign-turn-left';
                         break;
                     case 0:
-                        waypoint.sign = 'straight';
+                        if (i>0) {
+                            waypoint.sign = 'straight';
+                        }
                         break;
                     case 1:
                     case 2:
@@ -322,16 +336,21 @@ class Route{
         let container = document.querySelector('#routeInstructions');
         container.innerHTML = '';
         let div = document.createElement('div');
-        let content = document.createTextNode(this.distance + 'm');
+        let content = document.createTextNode(strings[locale].distance + this.distance + 'm');
         div.appendChild(content);
         div.style = 'margin-bottom:0.5rem'
+        container.appendChild(div);
+        div = document.createElement('div');
+        content = document.createTextNode(strings[locale].duration + getDurationString(this.duration));
+        div.appendChild(content);
+        div.style = 'margin-bottom:1.0rem'
         container.appendChild(div);
         let lastDistance = 0;
         for (let i = 0; i<this.waypoints.length; i++){
             let waypoint = this.waypoints[i];
             if (lastDistance !== 0){
                 div = document.createElement('div');
-                content = document.createTextNode(lastDistance + 'm:');
+                content = document.createTextNode(strings[locale].after + lastDistance + 'm:');
                 div.appendChild(content);
                 container.appendChild(div);
             }
@@ -340,6 +359,20 @@ class Route{
             if (waypoint.sign !== '') {
                 let icon = document.createElement('img');
                 icon.src = '/static-content/img/' + waypoint.sign + '.svg';
+                icon.alt = '';
+                icon.style = 'margin-right:10px'
+                div.appendChild(icon);
+            }
+            else if (i===0){
+                let icon = document.createElement('img');
+                icon.src = '/static-content/img/marker-green.svg';
+                icon.alt = '';
+                icon.style = 'margin-right:10px'
+                div.appendChild(icon);
+            }
+            else if (i===this.waypoints.length - 1){
+                let icon = document.createElement('img');
+                icon.src = '/static-content/img/marker-red.svg';
                 icon.alt = '';
                 icon.style = 'margin-right:10px'
                 div.appendChild(icon);

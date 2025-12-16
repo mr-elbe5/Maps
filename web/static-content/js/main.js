@@ -211,6 +211,20 @@ const getBoundsString = (sw, ne) => {
     return format5Decimals(Math.abs(sw.lat)) + swLatExt + " - " + format5Decimals(Math.abs(ne.lat)) + neLatExt + ", " + format5Decimals(Math.abs(sw.lng)) + swLngExt + " - " + format5Decimals(Math.abs(ne.lng)) + neLngExt;
 };
 
+const getDurationString = secs => {
+    if (secs < 60) {
+        return secs + "s";
+    }
+    let m = Math.floor(secs / 60);
+    let s = secs % 60;
+    if (m < 60) {
+        return m + "m " + s + "s";
+    }
+    let h = Math.floor(m / 60);
+    m = m % 60;
+    return h + "h " + m + "m " + s + "s";
+};
+
 const toLatLng = lnglat => {
     return [ lnglat[1], lnglat[0] ];
 };
@@ -584,6 +598,7 @@ class WayPoint {
 class Route {
     constructor() {
         this.distance = 0;
+        this.duration = 0;
         this.points = [];
         this.waypoints = [];
         this.startMarker = undefined;
@@ -681,87 +696,102 @@ class Route {
             target.innerHTML = s;
         });
     };
-    requestRoute = () => {
+    requestRouteFromOSRM = () => {
         map.off("click");
-        let url = "https://routing.openstreetmap.de/routed-" + document.querySelector("#routeProfile").value + "/route/v1/driving/" + document.querySelector("#routeStartLongitude").value + "," + document.querySelector("#routeStartLatitude").value + ";" + document.querySelector("#routeEndLongitude").value + "," + document.querySelector("#routeEndLatitude").value + "?overview=false&alternatives=false&generate_hints=false&steps=true";
-        console.log(url);
+        let url = "https://routing.openstreetmap.de/routed-" + document.querySelector("#routeProfile").value + "/route/v1/driving/" + document.querySelector("#routeStartLongitude").value + "," + document.querySelector("#routeStartLatitude").value + ";" + document.querySelector("#routeEndLongitude").value + "," + document.querySelector("#routeEndLatitude").value + "?overview=false&geometries=geojson&generate_hints=false&steps=true";
         fetch(url, {
             method: "POST"
         }).then(response => response.json()).then(json => {
             if (json && json !== "") {
-                this.fromJson(json);
+                this.fromOSRMJson(json);
                 this.showRoute();
             }
         });
         return false;
     };
-    fromJson(json) {
+    fromOSRMJson(json) {
+        console.log(json);
         this.points = [];
         this.waypoints = [];
-        console.log(json);
-        console.log("------------");
         let leg = json.routes[0].legs[0];
         this.distance = Math.round(leg.distance);
+        this.duration = Math.round(leg.duration);
         let steps = leg.steps;
-        console.log("steps: " + steps.length);
         for (let i = 0; i < steps.length; i++) {
             let step = steps[i];
-            let intersections = step.intersections;
-            for (let j = 0; j < intersections.length; j++) {
-                let intersection = intersections[j];
-                this.points.push(toLatLng(intersection.location));
+            let coordinates = step.geometry.coordinates;
+            for (let j = 0; j < coordinates.length; j++) {
+                let coordinate = coordinates[j];
+                this.points.push(toLatLng(coordinate));
             }
             let maneuver = step.maneuver;
             let waypoint = new WayPoint(toLatLng(maneuver.location));
-            waypoint.distance = step.distance;
-            waypoint.text = step.name;
-            switch (maneuver.modifier) {
-              case "left":
-              case "slight-left":
-                waypoint.sign = "sign-turn-left";
-                if (waypoint.text.length === 0) {
-                    waypoint.text = strings[locale].turnLeft;
-                } else {
-                    waypoint.text = strings[locale].turnLeftTo + waypoint.text;
-                }
-                break;
+            waypoint.distance = Math.floor(step.distance);
+            if (maneuver.type === "depart") {
+                waypoint.sign = "";
+                waypoint.text = strings[locale].startOn + step.name;
+            } else if (maneuver.type === "arrive") {
+                waypoint.sign = "";
+                waypoint.text = strings[locale].arrivedAt + step.name;
+            } else {
+                waypoint.text = step.name;
+                switch (maneuver.modifier) {
+                  case "left":
+                  case "slight-left":
+                    waypoint.sign = "sign-turn-left";
+                    if (waypoint.text.length === 0) {
+                        waypoint.text = strings[locale].turnLeft;
+                    } else {
+                        waypoint.text = strings[locale].turnLeftTo + waypoint.text;
+                    }
+                    break;
 
-              case "right":
-              case "slight-right":
-                waypoint.sign = "sign-turn-right";
-                if (waypoint.text.length === 0) {
-                    waypoint.text = strings[locale].turnRight;
-                } else {
-                    waypoint.text = strings[locale].turnRightTo + waypoint.text;
-                }
-                break;
+                  case "right":
+                  case "slight-right":
+                    waypoint.sign = "sign-turn-right";
+                    if (waypoint.text.length === 0) {
+                        waypoint.text = strings[locale].turnRight;
+                    } else {
+                        waypoint.text = strings[locale].turnRightTo + waypoint.text;
+                    }
+                    break;
 
-              default:
-                waypoint.sign = "straight";
-                if (waypoint.text.length === 0) {
-                    waypoint.text = strings[locale].goAhead;
-                } else {
-                    waypoint.text = strings[locale].goAheadTo + waypoint.text;
+                  case "uturn":
+                    waypoint.sign = "sign-turn-left";
+                    if (waypoint.text.length === 0) {
+                        waypoint.text = strings[locale].uturn;
+                    } else {
+                        waypoint.text = strings[locale].uturnTo + waypoint.text;
+                    }
+                    break;
+
+                  default:
+                    waypoint.sign = "straight";
+                    if (waypoint.text.length === 0) {
+                        waypoint.text = strings[locale].straightAhead;
+                    } else {
+                        waypoint.text = strings[locale].straightAheadTo + waypoint.text;
+                    }
+                    break;
                 }
-                break;
             }
             this.waypoints.push(waypoint);
         }
     }
-    requestRouteByGraphhopper = () => {
+    requestRouteFromGraphhopper = () => {
         map.off("click");
         let url = "/map/requestRoute?startLat=" + document.querySelector("#routeStartLatitude").value + "&startLon=" + document.querySelector("#routeStartLongitude").value + "&endLat=" + document.querySelector("#routeEndLatitude").value + "&endLon=" + document.querySelector("#routeEndLongitude").value + "&profile=" + document.querySelector("#routeProfile").value;
         fetch(url, {
             method: "POST"
         }).then(response => response.json()).then(json => {
             if (json && json !== "") {
-                this.fromGrashopperJson(json);
+                this.fromGraphhopperJson(json);
                 this.showRoute();
             }
         });
         return false;
     };
-    fromGrashpperJson(json) {
+    fromGraphhopperJson = json => {
         this.points = [];
         this.waypoints = [];
         let path = json.paths[0];
@@ -785,7 +815,9 @@ class Route {
                     break;
 
                   case 0:
-                    waypoint.sign = "straight";
+                    if (i > 0) {
+                        waypoint.sign = "straight";
+                    }
                     break;
 
                   case 1:
@@ -801,7 +833,7 @@ class Route {
                 this.waypoints.push(waypoint);
             }
         }
-    }
+    };
     showRoute = () => {
         this.resetRouteView();
         this.setPolyline();
@@ -841,16 +873,21 @@ class Route {
         let container = document.querySelector("#routeInstructions");
         container.innerHTML = "";
         let div = document.createElement("div");
-        let content = document.createTextNode(this.distance + "m");
+        let content = document.createTextNode(strings[locale].distance + this.distance + "m");
         div.appendChild(content);
         div.style = "margin-bottom:0.5rem";
+        container.appendChild(div);
+        div = document.createElement("div");
+        content = document.createTextNode(strings[locale].duration + getDurationString(this.duration));
+        div.appendChild(content);
+        div.style = "margin-bottom:1.0rem";
         container.appendChild(div);
         let lastDistance = 0;
         for (let i = 0; i < this.waypoints.length; i++) {
             let waypoint = this.waypoints[i];
             if (lastDistance !== 0) {
                 div = document.createElement("div");
-                content = document.createTextNode(lastDistance + "m:");
+                content = document.createTextNode(strings[locale].after + lastDistance + "m:");
                 div.appendChild(content);
                 container.appendChild(div);
             }
@@ -859,6 +896,18 @@ class Route {
             if (waypoint.sign !== "") {
                 let icon = document.createElement("img");
                 icon.src = "/static-content/img/" + waypoint.sign + ".svg";
+                icon.alt = "";
+                icon.style = "margin-right:10px";
+                div.appendChild(icon);
+            } else if (i === 0) {
+                let icon = document.createElement("img");
+                icon.src = "/static-content/img/marker-green.svg";
+                icon.alt = "";
+                icon.style = "margin-right:10px";
+                div.appendChild(icon);
+            } else if (i === this.waypoints.length - 1) {
+                let icon = document.createElement("img");
+                icon.src = "/static-content/img/marker-red.svg";
                 icon.alt = "";
                 icon.style = "margin-right:10px";
                 div.appendChild(icon);
@@ -901,20 +950,34 @@ const route = new Route();
 
 const strings = {
     de: {
+        distance: "Distanz: ",
+        duration: "Dauer: ",
+        startOn: "Starten auf ",
+        arrivedAt: "Ziel erreicht auf ",
+        after: "nach ",
         turnLeft: "nach links",
         turnRight: "nach rechts",
-        goAhead: "weiter geradeaus",
-        turnLeftTo: "nach links nach ",
-        turnRightTo: "nach rechts nach ",
-        goAheadTo: "geradeaus auf "
+        uturn: "wenden",
+        straightAhead: "weiter geradeaus",
+        turnLeftTo: "nach links auf ",
+        turnRightTo: "nach rechts auf ",
+        uturnTo: "wenden auf ",
+        straightAheadTo: "geradeaus auf "
     },
     en: {
+        distance: "Distance: ",
+        duration: "Duration: ",
+        startOn: "Start on ",
+        arrivedAt: "Arrived on ",
+        after: "after ",
         turnLeft: "turn left",
         turnRight: "turn right",
-        goAhead: "go ahead",
-        turnLeftTo: "turn left to ",
-        turnRightTo: "turn right to ",
-        goAheadTo: "straight ahead on "
+        uturn: "uturn",
+        straightAhead: "straight ahead",
+        turnLeftTo: "turn left on ",
+        turnRightTo: "turn right on ",
+        uturnTo: "uturn on ",
+        straightAheadTo: "straight ahead on "
     }
 };
 
