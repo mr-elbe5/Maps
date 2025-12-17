@@ -110,8 +110,12 @@ main {
   overflow-y: scroll;
 }
 
-.routeCursor {
-  cursor: crosshair !important;
+.greenMarkerCursor {
+  cursor: url(img-path('marker-green.svg')) 8 16, pointer;
+}
+
+.redMarkerCursor {
+  cursor: url(img-path('marker-red.svg')) 8 16, pointer;
 }
 
 footer {

@@ -259,7 +259,7 @@ const startRoute = () => {
 }
 
 const finishRoute = () => {
-    map.off('click');
+    route.unsetClick();
     route.reset();
     return false;
 }

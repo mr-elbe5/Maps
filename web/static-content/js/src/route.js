@@ -33,14 +33,14 @@ class Route{
         this.signPosts = [];
         this.routeStartIcon = L.icon({
             iconUrl: '/static-content/img/marker-green.svg',
-            iconSize: [24, 24],
-            iconAnchor: [12, 24],
+            iconSize: [16, 16],
+            iconAnchor: [8, 16],
             className: 'routeIcon'
         });
         this.routeEndIcon = L.icon({
             iconUrl: '/static-content/img/marker-red.svg',
-            iconSize: [24, 24],
-            iconAnchor: [12, 24],
+            iconSize: [16, 16],
+            iconAnchor: [8, 16],
             className: 'routeIcon'
         });
         this.signpostIcon = L.icon({
@@ -53,13 +53,13 @@ class Route{
 
     setClickForStart = () => {
         map.off('click');
-        this.setRouteCursor(true);
+        this.setRedMarkerCursor(false);
+        this.setGreenMarkerCursor(true);
         map.on('click', (e) =>{
             document.querySelector('#routeStartLabel').innerHTML = getLatLonString(e.latlng);
             document.querySelector('#routeStartLatitude').value = e.latlng.lat;
             document.querySelector('#routeStartLongitude').value = e.latlng.lng;
             this.setStartMarker(e.latlng);
-            this.setRouteCursor(false);
             this.setMarkerInfo(e.latlng, document.querySelector('#routeStartName'));
         });
         return false;
@@ -67,24 +67,39 @@ class Route{
 
     setClickForEnd = () => {
         map.off('click');
-        this.setRouteCursor(true);
+        this.setGreenMarkerCursor(false);
+        this.setRedMarkerCursor(true);
         map.on('click', (e) =>{
             document.querySelector('#routeEndLabel').innerHTML = getLatLonString(e.latlng);
             document.querySelector('#routeEndLatitude').value = e.latlng.lat;
             document.querySelector('#routeEndLongitude').value = e.latlng.lng;
             this.setEndMarker(e.latlng);
-            this.setRouteCursor(false);
             this.setMarkerInfo(e.latlng, document.querySelector('#routeEndName'));
         });
         return false;
     }
 
-    setRouteCursor = (flag) => {
+    unsetClick(){
+        map.off('click');
+        this.setGreenMarkerCursor(false);
+        this.setRedMarkerCursor(false);
+    }
+
+    setGreenMarkerCursor = (flag) => {
         if (flag){
-            document.querySelector('#map').classList.add('routeCursor');
+            document.querySelector('#map').classList.add('greenMarkerCursor');
         }
         else{
-            document.querySelector('#map').classList.remove('routeCursor');
+            document.querySelector('#map').classList.remove('greenMarkerCursor');
+        }
+    }
+
+    setRedMarkerCursor = (flag) => {
+        if (flag){
+            document.querySelector('#map').classList.add('redMarkerCursor');
+        }
+        else{
+            document.querySelector('#map').classList.remove('redMarkerCursor');
         }
     }
 
@@ -133,7 +148,7 @@ class Route{
     }
 
     requestRoute = () => {
-        map.off('click');
+        this.unsetClick();
         let url = "https://routing.openstreetmap.de/routed-" +
             document.querySelector('#routeProfile').value +
             "/route/v1/driving/" +
@@ -177,22 +192,31 @@ class Route{
             let maneuver = step.maneuver;
             let waypoint = new WayPoint(toLatLng(maneuver.location));
             waypoint.distance = Math.floor(step.distance);
+            if (step.name && step.name !== ''){
+                waypoint.text = step.name;
+            }
+            else if (step.ref && step.ref !== ''){
+                waypoint.text = step.ref;
+            }
             if (maneuver.type === 'depart') {
                 waypoint.sign = '';
-                waypoint.text = strings[locale].startOn + step.name;
+                if (waypoint.text.length === 0) {
+                    waypoint.text = strings[locale].start;
+                } else {
+                    waypoint.text = strings[locale].startOn + waypoint.text;
+                }
             } else if (maneuver.type === 'arrive') {
                 waypoint.sign = '';
-                waypoint.text = strings[locale].arrivedAt + step.name;
+                if (waypoint.text.length === 0) {
+                    waypoint.text = strings[locale].arrived;
+                } else {
+                    waypoint.text = strings[locale].arrivedAt + waypoint.text;
+                }
             } else {
-                if (step.name && step.name !== ''){
-                    waypoint.text = step.name;
-                }
-                else if (step.ref && step.ref !== ''){
-                    waypoint.text = step.ref;
-                }
                 switch (maneuver.modifier) {
                     case 'left':
                     case 'slight-left':
+                    case 'sharp-left':
                         waypoint.sign = 'sign-turn-left';
                         if (waypoint.text.length === 0) {
                             waypoint.text = strings[locale].turnLeft;
@@ -202,6 +226,7 @@ class Route{
                         break;
                     case 'right':
                     case 'slight-right':
+                    case 'sharp-right':
                         waypoint.sign = 'sign-turn-right';
                         if (waypoint.text.length === 0) {
                             waypoint.text = strings[locale].turnRight;

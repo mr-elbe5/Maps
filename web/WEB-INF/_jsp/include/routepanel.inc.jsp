@@ -18,7 +18,7 @@
 <form>
   <div class="formGroup">
     <div>
-      <span><%=$SH("_routeStart", locale)%></span>&nbsp;<a href="" onclick="return route.setClickForStart();"><%=$SH("_set", locale)%>&nbsp;<img src="/static-content/img/marker-green.svg" alt=""/> </a>
+      <span><%=$SH("_routeStart", locale)%></span>&nbsp;<a href="" onclick="return route.setClickForStart();"><%=$SH("_set", locale)%>&nbsp;<img src="/static-content/img/marker-green.png" alt=""/> </a>
     </div>
     <div id="routeStartLabel"></div>
     <input type="hidden" name="routeStartLatitude" id="routeStartLatitude" value="">
@@ -27,7 +27,7 @@
   </div>
   <div class="formGroup">
     <div>
-      <span><%=$SH("_routeEnd", locale)%></span>&nbsp;<a href="" onclick="return route.setClickForEnd();"><%=$SH("_set", locale)%>&nbsp;<img src="/static-content/img/marker-red.svg" alt=""/></a>
+      <span><%=$SH("_routeEnd", locale)%></span>&nbsp;<a href="" onclick="return route.setClickForEnd();"><%=$SH("_set", locale)%>&nbsp;<img src="/static-content/img/marker-red.png" alt=""/></a>
     </div>
     <div id="routeEndLabel"></div>
     <input type="hidden" name="routeEndLatitude" id="routeEndLatitude" value="">

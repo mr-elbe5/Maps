@@ -23,18 +23,18 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta name="Cache-Control" content="no-cache, must-revalidate"/>
+    <!--<meta name="Cache-Control" content="no-cache, must-revalidate"/>-->
     <title>OSM Maps</title>
     <meta name="keywords" content="osm openstreetmap map elbe5">
     <meta name="description" content="">
     <link rel="shortcut icon" href="/favicon.ico"/>
     <link rel="stylesheet" href="/static-content/css/leaflet.css"/>
     <link rel="stylesheet" href="/static-content/css/leaflet-areaselect.css"/>
-    <link rel="stylesheet" href="/static-content/css/maps.css?v=4"/>
+    <link rel="stylesheet" href="/static-content/css/maps.css?v=5"/>
     <script type="text/javascript" src="/static-content/js/leaflet.js"></script>
     <script type="text/javascript" src="/static-content/js/leaflet-hash.js"></script>
     <script type="text/javascript" src="/static-content/js/leaflet-areaselect.js"></script>
-    <script type="text/javascript" src="/static-content/js/main.js?v=4"></script>
+    <script type="text/javascript" src="/static-content/js/main.js?v=5"></script>
 </head>
 <body>
 <header>
