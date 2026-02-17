@@ -8,6 +8,7 @@
  */
 package de.elbe5.application;
 
+import de.elbe5.base.Log;
 import de.elbe5.base.StringHelper;
 import de.elbe5.tile.TileType;
 import jakarta.servlet.ServletContext;
@@ -21,7 +22,6 @@ public class Configuration{
 
     static String loginName = "";
     static String password = "";
-    static String tilePath = "";
     static List<TileType> tileTypes = new ArrayList<>();
     static TileType currentTileType = null;
     static int startZoom = 2;
@@ -32,11 +32,6 @@ public class Configuration{
     public static void initialize(ServletContext context){
         loginName = getSafeString(context, "loginName");
         password = getSafeString(context, "password");
-        tilePath = getSafeString(context,"tilePath");
-        File dir = new File(tilePath);
-        if (!dir.mkdirs()){
-            System.err.println("Could not create tile path: " + tilePath);
-        }
         String s = getSafeString(context,"tileTypes");
         StringTokenizer stk = new StringTokenizer(s, ",");
         while (stk.hasMoreTokens()){
@@ -44,6 +39,7 @@ public class Configuration{
             String url = getSafeString(context, "tileURL_" + type);
             if (!url.isEmpty()){
                 tileTypes.add(new TileType(type, url));
+                System.out.println("got tile type: " + type + " and url: " + url);
             }
         }
         if (!tileTypes.isEmpty()){
@@ -78,10 +74,6 @@ public class Configuration{
 
     public static double getStartLongitude() {
         return startLongitude;
-    }
-
-    public static String getTilePath() {
-        return tilePath;
     }
 
     public static List<TileType> getTileTypes() {

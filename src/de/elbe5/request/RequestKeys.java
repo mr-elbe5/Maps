@@ -19,8 +19,4 @@ public class RequestKeys {
     public static final String KEY_JSP = "$JSP";
     public static final String KEY_TARGETID = "$TARGETID";
     public static final String KEY_TITLE = "$TITLE";
-
-    public static final String MESSAGE_TYPE_INFO = "info";
-    public static final String MESSAGE_TYPE_SUCCESS = "success";
-    public static final String MESSAGE_TYPE_ERROR = "danger";
 }

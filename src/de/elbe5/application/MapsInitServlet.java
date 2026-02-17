@@ -35,7 +35,6 @@ public class MapsInitServlet extends InitServlet {
         }
         ControllerServlet.defaultController = MapController.getInstance();
 
-        Log.log("Tile path is " + Configuration.getTilePath());
         Log.log("remote timeout is " + Configuration.remoteTimeoutSecs);
         Log.log("Maps initialized");
     }

@@ -9,12 +9,17 @@
 
 class MapData{
 
-    constructor(zoom, latitude, longitude, tileType){
+    constructor(zoom, latitude, longitude, tileType, tileUrls){
         this.zoom = zoom;
         this.latitude = latitude;
         this.longitude = longitude;
         this.tileType = tileType;
+        this.tileUrls = tileUrls;
     }
+
+    getTileLayerUrl = () => {
+        return this.tileUrls[this.tileType];
+    };
 
     readMapDataCookie = () => {
         let dataString = getCookie("mapData");

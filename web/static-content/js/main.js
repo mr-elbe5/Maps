@@ -187,10 +187,6 @@ const getCookie = cname => {
     return "";
 };
 
-const getTileLayerUrl = value => {
-    return "/" + value + "/{z}/{x}/{y}.png";
-};
-
 const format5Decimals = value => {
     return (Math.floor(value * 1e5) / 1e5).toString();
 };
@@ -230,12 +226,16 @@ const toLatLng = lnglat => {
 };
 
 class MapData {
-    constructor(zoom, latitude, longitude, tileType) {
+    constructor(zoom, latitude, longitude, tileType, tileUrls) {
         this.zoom = zoom;
         this.latitude = latitude;
         this.longitude = longitude;
         this.tileType = tileType;
+        this.tileUrls = tileUrls;
     }
+    getTileLayerUrl = () => {
+        return this.tileUrls[this.tileType];
+    };
     readMapDataCookie = () => {
         let dataString = getCookie("mapData");
         if (!dataString || dataString.length === 0) {
@@ -301,25 +301,6 @@ const initializeMapEvents = () => {
             mapData.saveMapData();
         }
     });
-};
-
-const initializeLoadTilesInputs = () => {
-    let tileTypeInput = document.querySelector("#tileType");
-    if (!tileTypeInput) {
-        return;
-    }
-    tileTypeInput.value = mapData.tileType;
-    let bounds;
-    if (areaSelect) {
-        bounds = areaSelect.getBounds();
-    } else {
-        bounds = map.getBounds();
-    }
-    document.querySelector("#topLatitude").value = Math.min(85, bounds.getNorthWest().lat);
-    document.querySelector("#leftLongitude").value = Math.max(-180, bounds.getNorthWest().lng);
-    document.querySelector("#bottomLatitude").value = Math.max(-85, bounds.getSouthEast().lat);
-    document.querySelector("#rightLongitude").value = Math.min(180, bounds.getSouthEast().lng);
-    document.querySelector("#zoom").value = mapData.zoom;
 };
 
 const initializeMapSourceRadios = () => {
@@ -483,7 +464,7 @@ const setMapSource = () => {
     if (cookieAccepted()) {
         mapData.saveMapData();
     }
-    tileLayer.setUrl(getTileLayerUrl(mapSource));
+    tileLayer.setUrl(mapData.getTileLayerUrl());
     closeModalDialog();
     return false;
 };

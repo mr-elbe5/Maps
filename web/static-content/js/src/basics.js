@@ -198,9 +198,6 @@ const getCookie = (cname) => {
     return "";
 }
 
-const getTileLayerUrl = (value) => {
-    return '/' + value + '/{z}/{x}/{y}.png';
-}
 const format5Decimals = (value) =>{
     return (Math.floor(value*100000)/100000).toString();
 }

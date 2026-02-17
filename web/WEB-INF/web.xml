@@ -15,10 +15,6 @@
         <servlet-class>de.elbe5.map.MapServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>tile</servlet-name>
-        <servlet-class>de.elbe5.tile.TileServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>user</servlet-name>
         <servlet-class>de.elbe5.user.UserServlet</servlet-class>
     </servlet>
@@ -26,12 +22,6 @@
     <servlet-mapping>
         <servlet-name>map</servlet-name>
         <url-pattern>/map/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>tile</servlet-name>
-        <url-pattern>/osm/*</url-pattern>
-        <url-pattern>/carto/*</url-pattern>
-        <url-pattern>/topo/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>user</servlet-name>

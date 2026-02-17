@@ -8,14 +8,10 @@
  */
 package de.elbe5.map;
 
-import de.elbe5.application.Configuration;
 import de.elbe5.request.RequestData;
 import de.elbe5.response.ForwardResponse;
 import de.elbe5.response.IResponse;
-import de.elbe5.response.StatusResponse;
 import de.elbe5.servlet.Controller;
-import de.elbe5.tile.*;
-import jakarta.servlet.http.HttpServletResponse;
 
 public class MapController extends Controller {
 
@@ -44,55 +40,6 @@ public class MapController extends Controller {
 
     public IResponse openSearch(RequestData rdata) {
         return new ForwardResponse("/WEB-INF/_jsp/ajax/search.ajax.jsp");
-    }
-
-    public IResponse loadTiles(RequestData rdata) {
-        if (!rdata.isLoggedIn()){
-            return new StatusResponse(HttpServletResponse.SC_UNAUTHORIZED);
-        }
-        if (TileProvider.instance.isLoading()){
-            return showLoadStatus(rdata);
-        }
-        else{
-            return new ForwardResponse("/WEB-INF/_jsp/ajax/loadTiles.ajax.jsp");
-        }
-    }
-
-    public IResponse startLoadingTiles(RequestData rdata) {
-        if (!rdata.isLoggedIn()){
-            return new StatusResponse(HttpServletResponse.SC_UNAUTHORIZED);
-        }
-        double topLatitude = Math.min(85.0,rdata.getAttributes().getDouble("topLatitude"));
-        double bottomLatitude = Math.max(-85.0,rdata.getAttributes().getDouble("bottomLatitude"));
-        double leftLongitude = Math.max(-180.0,rdata.getAttributes().getDouble("leftLongitude"));
-        double rightLongitude = Math.min(180.0,rdata.getAttributes().getDouble("rightLongitude"));
-        int zoom = rdata.getAttributes().getInt("zoom");
-        TileType type;
-        String typeName = rdata.getAttributes().getString("tileType");
-        try{
-            type = Configuration.getTileType(typeName);
-        }
-        catch(Exception e) {
-            return new StatusResponse(HttpServletResponse.SC_BAD_REQUEST);
-        }
-        int minX = World.tileX(leftLongitude, zoom);
-        int maxX = World.tileX(rightLongitude, zoom) + 1;
-        int minY = World.tileY(topLatitude, zoom);
-        int maxY = World.tileY(bottomLatitude, zoom) + 1;
-        TileProvider.instance.startLoadingQueuedTiles(type, zoom, minX, maxX, minY, maxY );
-        return showLoadStatus(rdata);
-    }
-
-    private IResponse showLoadStatus(RequestData rdata) {
-        return new ForwardResponse("/WEB-INF/_jsp/ajax/loadTilesStatus.ajax.jsp");
-    }
-
-    public IResponse cancelLoadingTiles(RequestData rdata) {
-        if (!rdata.isLoggedIn()){
-            return new StatusResponse(HttpServletResponse.SC_UNAUTHORIZED);
-        }
-        TileProvider.instance.stopTileLoader();
-        return showLoadStatus(rdata);
     }
 
 }

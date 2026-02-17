@@ -48,25 +48,6 @@ const initializeMapEvents = () => {
     });
 }
 
-const initializeLoadTilesInputs = () => {
-    let tileTypeInput = document.querySelector('#tileType');
-    if (!tileTypeInput){
-        return;
-    }
-    tileTypeInput.value = mapData.tileType;
-    let bounds;
-    if (areaSelect) {
-        bounds = areaSelect.getBounds();
-    } else {
-        bounds = map.getBounds();
-    }
-    document.querySelector('#topLatitude').value = Math.min(85.0, bounds.getNorthWest().lat);
-    document.querySelector('#leftLongitude').value = Math.max(-180.0, bounds.getNorthWest().lng);
-    document.querySelector('#bottomLatitude').value = Math.max(-85.0, bounds.getSouthEast().lat);
-    document.querySelector('#rightLongitude').value = Math.min(180.0, bounds.getSouthEast().lng);
-    document.querySelector('#zoom').value = mapData.zoom;
-}
-
 const initializeMapSourceRadios = () => {
     var radios = document.getElementsByName('mapSource');
     let activeRadio = radios[0];
@@ -246,7 +227,7 @@ const setMapSource = () => {
     if (cookieAccepted()) {
         mapData.saveMapData();
     }
-    tileLayer.setUrl(getTileLayerUrl(mapSource));
+    tileLayer.setUrl(mapData.getTileLayerUrl());
     closeModalDialog();
     return false;
 }

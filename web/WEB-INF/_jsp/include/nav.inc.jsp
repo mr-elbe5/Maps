@@ -8,14 +8,6 @@
 %>
 <div class="nav">
     <ul>
-        <%if (rdata.isLoggedIn()) {%>
-        <li>
-            <a href="#" onclick="clearMapAddons(); hideRoutePanel(); return openModalDialog('/map/loadTiles', initializeLoadTilesInputs);"
-               title="<%=$SH("_loadTiles", locale)%>">
-                <img class="icon" src="/static-content/img/download.svg" alt="<%=$SH("_loadTiles", locale)%>">
-            </a>
-        </li>
-        <%}%>
         <li>
             <a href="#" onclick="return toggleAreaSelector();" title="<%=$SH("_toggleSelector", locale)%>">
                 <img class="icon" src="/static-content/img/bounding-box.svg" alt="<%=$SH("_toggleSelector", locale)%>">

@@ -18,7 +18,7 @@
 			hash = hash.substr(1);
 		}
 		var args = hash.split("/");
-		if (args.length == 3) {
+		if (args.length === 3) {
 			var zoom = parseInt(args[0], 10),
 			lat = parseFloat(args[1]),
 			lon = parseFloat(args[2]);
@@ -86,7 +86,7 @@
 			}
 
 			var hash = this.formatHash(this.map);
-			if (this.lastHash != hash) {
+			if (this.lastHash !== hash) {
 				location.replace(hash);
 				this.lastHash = hash;
 			}

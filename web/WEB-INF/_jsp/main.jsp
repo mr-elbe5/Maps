@@ -30,7 +30,7 @@
     <link rel="shortcut icon" href="/favicon.ico"/>
     <link rel="stylesheet" href="/static-content/css/leaflet.css"/>
     <link rel="stylesheet" href="/static-content/css/leaflet-areaselect.css"/>
-    <link rel="stylesheet" href="/static-content/css/maps.css?v=5"/>
+    <link rel="stylesheet" href="/static-content/css/maps.css?v=6"/>
     <script type="text/javascript" src="/static-content/js/leaflet.js"></script>
     <script type="text/javascript" src="/static-content/js/leaflet-hash.js"></script>
     <script type="text/javascript" src="/static-content/js/leaflet-areaselect.js"></script>
@@ -74,20 +74,23 @@
 <script type="text/javascript">
     //<![CDATA[
     let locale = '<%=locale.getLanguage()%>';
-    let tileTypes = {}
-    <% for (TileType type : Configuration.getTileTypes()){%>
-        tileTypes['<%=type.getName()%>'] = '<%=type.getUrlPattern()%>';
-    <%}%>
+    var tileUrls = {};
+    <%
+    for (TileType type: Configuration.getTileTypes()){%>
+        tileUrls['<%=type.getName()%>'] = '<%=type.getUrlPattern()%>';
+    <%}
+    %>
     mapData = new MapData(
         <%=Configuration.getStartZoom()%>,
         <%=Configuration.getStartLatitude()%>,
         <%=Configuration.getStartLongitude()%>,
-        '<%=Configuration.getCurrentTileType().getName()%>');
+        '<%=Configuration.getCurrentTileType().getName()%>',
+        tileUrls);
     if (cookieAccepted()){
         mapData.readMapDataCookie();
     }
     let map = L.map('map').setView([mapData.latitude, mapData.longitude], mapData.zoom);
-    let tileLayer = L.tileLayer(getTileLayerUrl(mapData.tileType), {
+    let tileLayer = L.tileLayer(mapData.getTileLayerUrl(), {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
     });
     tileLayer.addTo(map);
