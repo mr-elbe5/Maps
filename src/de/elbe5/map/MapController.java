@@ -30,6 +30,10 @@ public class MapController extends Controller {
         return new ForwardResponse("/WEB-INF/_jsp/ajax/mapSource.ajax.jsp");
     }
 
+    public IResponse openLayerSource(RequestData rdata) {
+        return new ForwardResponse("/WEB-INF/_jsp/ajax/layerSource.ajax.jsp");
+    }
+
     public IResponse openCenterInfo(RequestData rdata) {
         return new ForwardResponse("/WEB-INF/_jsp/ajax/centerInfo.ajax.jsp");
     }

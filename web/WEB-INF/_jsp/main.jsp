@@ -75,17 +75,29 @@
     //<![CDATA[
     let locale = '<%=locale.getLanguage()%>';
     var tileUrls = {};
+    var layerUrls = {};
     <%
+    TileType currentLayer = Configuration.getCurrentLayerType();
     for (TileType type: Configuration.getTileTypes()){%>
         tileUrls['<%=type.getName()%>'] = '<%=type.getUrlPattern()%>';
     <%}
-    %>
+    for (TileType type: Configuration.getLayerTypes()){%>
+        layerUrls['<%=type.getName()%>'] = '<%=type.getUrlPattern()%>';
+    <%}%>
+    var layerName;
+    <%
+    if (Configuration.getCurrentLayerType() != null) {%>
+    layerName = '<%=Configuration.getCurrentLayerType().getName()%>';
+    <%}%>
     mapData = new MapData(
         <%=Configuration.getStartZoom()%>,
         <%=Configuration.getStartLatitude()%>,
         <%=Configuration.getStartLongitude()%>,
         '<%=Configuration.getCurrentTileType().getName()%>',
-        tileUrls);
+        tileUrls,
+        layerName,
+        layerUrls)
+    ;
     if (cookieAccepted()){
         mapData.readMapDataCookie();
     }
@@ -94,6 +106,12 @@
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
     });
     tileLayer.addTo(map);
+    var layerLayer = null;
+    if (mapData.layerType != null){
+        layerLayer = L.tileLayer(mapData.getLayerLayerUrl(), {
+        });
+        layerLayer.addTo(map);
+    }
     let hash = L.hash(map);
     initializeMapEvents();
     let areaSelect = null;

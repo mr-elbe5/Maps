@@ -25,6 +25,12 @@
             </a>
         </li>
         <li>
+            <a href="" onclick="return openModalDialog('/map/openLayerSource', initializeLayerSourceRadios);"
+               title="<%=$SH("_layerSource", locale)%>">
+                <img src="/static-content/img/layers.svg" alt="<%=$SH("_layerSource", locale)%>">
+            </a>
+        </li>
+        <li>
             <a href="#" onclick="return toggleRoutePanel();" title="<%=$SH("_toggleRoutePanel", locale)%>">
                 <img class="icon" src="/static-content/img/signpost.svg" alt="<%=$SH("_toggleRoutePanel", locale)%>">
             </a>

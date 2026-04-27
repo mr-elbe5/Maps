@@ -226,15 +226,23 @@ const toLatLng = lnglat => {
 };
 
 class MapData {
-    constructor(zoom, latitude, longitude, tileType, tileUrls) {
+    constructor(zoom, latitude, longitude, tileType, tileUrls, layerType, layerUrls) {
         this.zoom = zoom;
         this.latitude = latitude;
         this.longitude = longitude;
         this.tileType = tileType;
         this.tileUrls = tileUrls;
+        this.layerType = layerType;
+        this.layerUrls = layerUrls;
     }
     getTileLayerUrl = () => {
         return this.tileUrls[this.tileType];
+    };
+    getLayerLayerUrl = () => {
+        if (this.layerType == null) {
+            return null;
+        }
+        return this.layerUrls[this.layerType];
     };
     readMapDataCookie = () => {
         let dataString = getCookie("mapData");
@@ -246,6 +254,7 @@ class MapData {
         if (data.latitude && data.latitude !== "null") this.latitude = data.latitude;
         if (data.longitude && data.longitude !== "null") this.longitude = data.longitude;
         if (data.tileType && data.tileType !== "null") this.tileType = data.tileType;
+        if (data.layerType && data.layerType !== "null") this.layerType = data.layerType;
     };
     saveMapData = () => {
         let dataString = JSON.stringify(this);
@@ -312,6 +321,27 @@ const initializeMapSourceRadios = () => {
             radio.checked = true;
             activeRadio = radio;
             break;
+        }
+    }
+    setTimeout(function() {
+        activeRadio.focus();
+    }, 500);
+};
+
+const initializeLayerSourceRadios = () => {
+    var radios = document.getElementsByName("layerSource");
+    let activeRadio = null;
+    if (mapData.layerType === null) {
+        radios[0].checked = true;
+        activeRadio = radios[0];
+    } else {
+        for (var i = 1; i < radios.length; i++) {
+            let radio = radios[i];
+            if (radio.value === mapData.layerType) {
+                radio.checked = true;
+                activeRadio = radio;
+                break;
+            }
         }
     }
     setTimeout(function() {
@@ -465,6 +495,40 @@ const setMapSource = () => {
         mapData.saveMapData();
     }
     tileLayer.setUrl(mapData.getTileLayerUrl());
+    closeModalDialog();
+    return false;
+};
+
+const setLayerSource = () => {
+    let arr = document.getElementsByName("layerSource");
+    let layerSource = null;
+    if (arr[0].checked) {
+        layerSource = null;
+    } else {
+        for (let i = 1; i < arr.length; i++) {
+            if (arr[i].checked) {
+                layerSource = arr[i].value;
+                break;
+            }
+        }
+    }
+    mapData.layerType = layerSource;
+    if (cookieAccepted()) {
+        mapData.saveMapData();
+    }
+    if (layerSource === null) {
+        if (layerLayer != null) {
+            map.removeLayer(layerLayer);
+            layerLayer = null;
+        }
+    } else {
+        if (layerLayer != null) {
+            layerLayer.setUrl(mapData.getLayerLayerUrl());
+        } else {
+            layerLayer = L.tileLayer(mapData.getLayerLayerUrl(), {});
+            layerLayer.addTo(map);
+        }
+    }
     closeModalDialog();
     return false;
 };

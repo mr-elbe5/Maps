@@ -9,16 +9,25 @@
 
 class MapData{
 
-    constructor(zoom, latitude, longitude, tileType, tileUrls){
+    constructor(zoom, latitude, longitude, tileType, tileUrls, layerType, layerUrls){
         this.zoom = zoom;
         this.latitude = latitude;
         this.longitude = longitude;
         this.tileType = tileType;
         this.tileUrls = tileUrls;
+        this.layerType = layerType;
+        this.layerUrls = layerUrls;
     }
 
     getTileLayerUrl = () => {
         return this.tileUrls[this.tileType];
+    };
+
+    getLayerLayerUrl = () => {
+        if (this.layerType == null){
+            return null;
+        }
+        return this.layerUrls[this.layerType];
     };
 
     readMapDataCookie = () => {
@@ -35,6 +44,8 @@ class MapData{
             this.longitude = data.longitude;
         if (data.tileType && data.tileType !== 'null')
             this.tileType = data.tileType;
+        if (data.layerType && data.layerType !== 'null')
+            this.layerType = data.layerType;
     }
 
     saveMapData = () => {

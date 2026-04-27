@@ -62,6 +62,26 @@ const initializeMapSourceRadios = () => {
     setTimeout(function() { activeRadio.focus() }, 500);
 }
 
+const initializeLayerSourceRadios = () => {
+    var radios = document.getElementsByName('layerSource');
+    let activeRadio = null;
+    if (mapData.layerType === null) {
+        radios[0].checked = true;
+        activeRadio = radios[0];
+    }
+    else{
+        for (var i = 1; i < radios.length; i++) {
+            let radio = radios[i];
+            if (radio.value === mapData.layerType) {
+                radio.checked = true;
+                activeRadio = radio;
+                break;
+            }
+        }
+    }
+    setTimeout(function() { activeRadio.focus() }, 500);
+}
+
 const initializeCenterInfo = () => {
     let latlng = map.getCenter();
     let url = "https://nominatim.openstreetmap.org/reverse?lat=" + latlng.lat + "&lon=" + latlng.lng + "&format=json&addressdetails=1"
@@ -228,6 +248,46 @@ const setMapSource = () => {
         mapData.saveMapData();
     }
     tileLayer.setUrl(mapData.getTileLayerUrl());
+    closeModalDialog();
+    return false;
+}
+
+// layer source dialog
+
+const setLayerSource = () => {
+    let arr = document.getElementsByName('layerSource')
+    let layerSource = null;
+    if (arr[0].checked){
+        layerSource = null;
+    }
+    else {
+        for (let i = 1; i < arr.length; i++) {
+            if (arr[i].checked) {
+                layerSource = arr[i].value;
+                break;
+            }
+        }
+    }
+    mapData.layerType = layerSource;
+    if (cookieAccepted()) {
+        mapData.saveMapData();
+    }
+    if (layerSource === null){
+        if (layerLayer != null){
+            map.removeLayer(layerLayer);
+            layerLayer = null
+        }
+    }
+    else{
+        if (layerLayer != null){
+            layerLayer.setUrl(mapData.getLayerLayerUrl());
+        }
+        else{
+            layerLayer = L.tileLayer(mapData.getLayerLayerUrl(), {
+            });
+            layerLayer.addTo(map);
+        }
+    }
     closeModalDialog();
     return false;
 }

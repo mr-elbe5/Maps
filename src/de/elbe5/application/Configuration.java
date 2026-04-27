@@ -24,6 +24,8 @@ public class Configuration{
     static String password = "";
     static List<TileType> tileTypes = new ArrayList<>();
     static TileType currentTileType = null;
+    static List<TileType> layerTypes = new ArrayList<>();
+    static TileType currentLayerType = null;
     static int startZoom = 2;
     static double startLatitude = 30.0;
     static double startLongitude = 10.0;
@@ -45,6 +47,17 @@ public class Configuration{
         if (!tileTypes.isEmpty()){
             currentTileType = tileTypes.getFirst();
         }
+        s = getSafeString(context,"layerTypes");
+        stk = new StringTokenizer(s, ",");
+        while (stk.hasMoreTokens()){
+            String type = stk.nextToken();
+            String url = getSafeString(context, "layerURL_" + type);
+            if (!url.isEmpty()){
+                layerTypes.add(new TileType(type, url));
+                System.out.println("got layer type: " + type + " and url: " + url);
+            }
+        }
+        currentLayerType = null;
         remoteTimeoutSecs = StringHelper.getSafeInt(context.getInitParameter("remoteTimeoutSecs"));
         if (remoteTimeoutSecs == 0){
             remoteTimeoutSecs = 30;
@@ -91,6 +104,23 @@ public class Configuration{
 
     public static TileType getCurrentTileType() {
         return currentTileType;
+    }
+
+    public static List<TileType> getLayerTypes() {
+        return layerTypes;
+    }
+
+    public static TileType getLayerType(String name){
+        for (TileType t : layerTypes){
+            if (t.getName().equals(name)){
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public static TileType getCurrentLayerType() {
+        return currentLayerType;
     }
 
     public static int getRemoteTimeoutSecs() {
