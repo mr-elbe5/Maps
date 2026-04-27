@@ -79,7 +79,11 @@ const initializeLayerSourceRadios = () => {
             }
         }
     }
-    setTimeout(function() { activeRadio.focus() }, 500);
+    if (activeRadio != null) {
+        setTimeout(function () {
+            activeRadio.focus()
+        }, 500);
+    }
 }
 
 const initializeCenterInfo = () => {

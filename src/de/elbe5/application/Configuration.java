@@ -8,12 +8,10 @@
  */
 package de.elbe5.application;
 
-import de.elbe5.base.Log;
 import de.elbe5.base.StringHelper;
 import de.elbe5.tile.TileType;
 import jakarta.servlet.ServletContext;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
