@@ -63,9 +63,11 @@
 
     <target name="collectFiles" depends="createCss, createJs">
         <copy todir="${buildLibs.dir}">
+            <fileset dir="../Elbe5Base/lib" />
             <fileset dir="lib" />
         </copy>
         <copy todir="${buildSrc.dir}" overwrite="true">
+            <fileset dir="../Elbe5Base/src" />
             <fileset dir="src" />
         </copy>
     </target>
@@ -76,11 +78,6 @@
                 <path refid="classpath"/>
             </classpath>
         </javac>
-        <copy todir="${buildClasses.dir}" overwrite="true">
-            <fileset dir="${buildSrc.dir}" >
-                <include name="**/*.properties"/>
-            </fileset>
-        </copy>
     </target>
 
     <target name="createProjectWar" depends="collectFiles, compile">

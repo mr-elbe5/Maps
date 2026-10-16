@@ -8,34 +8,40 @@
  */
 package de.elbe5.application;
 
-import de.elbe5.base.LocalizedStrings;
-import de.elbe5.base.Log;
+import de.elbe5.base.*;
 import de.elbe5.map.MapController;
+import de.elbe5.servlet.ControllerCache;
 import de.elbe5.servlet.ControllerServlet;
-import de.elbe5.servlet.InitServlet;
+import de.elbe5.user.UserController;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
 
-import java.util.Locale;
+import java.util.Map;
 
-public class MapsInitServlet extends InitServlet {
+public class MapsInitServlet extends HttpServlet {
 
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         System.out.println("initializing Maps application...");
         ServletContext context=servletConfig.getServletContext();
-        ApplicationPath.initializePath(ApplicationPath.getCatalinaAppDir(context), ApplicationPath.getCatalinaAppROOTDir(context));
-        Configuration.initialize(context);
-        Log.initLog(ApplicationPath.getAppName());
-        for (Locale locale : Locales.instance) {
-            LocalizedStrings.getInstance().addBundle("strings", locale);
-            Log.info("added localized strings for " + locale.getLanguage());
-        }
+        MapsApplicationPath.initializePath(MapsApplicationPath.getCatalinaAppDir(context), MapsApplicationPath.getCatalinaAppROOTDir(context));
+        MapsConfiguration.initialize(context);
+        Log.initLog(MapsApplicationPath.getAppName());
+        BaseStr.init(BaseStr.class, Map.of(
+                "de", BaseStr_de.class,
+                "en", BaseStr_en.class
+        ));
+        Str.init(Str.class, Map.of(
+                "de", Str_de.class,
+                "en", Str_en.class
+        ));
         ControllerServlet.defaultController = MapController.getInstance();
-
-        Log.log("remote timeout is " + Configuration.remoteTimeoutSecs);
+        ControllerCache.addController(MapController.getInstance());
+        ControllerCache.addController(UserController.getInstance());
+        Log.log("remote timeout is " + MapsConfiguration.remoteTimeoutSecs);
         Log.log("Maps initialized");
     }
 

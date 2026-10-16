@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="{*}">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>OSM Maps</title>
+    <meta name="keywords" content="osm openstreetmap map elbe5">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="stylesheet" href="/static-content/css/leaflet.css"/>
+    <link rel="stylesheet" href="/static-content/css/leaflet-areaselect.css"/>
+    <link rel="stylesheet" href="/static-content/css/maps.css?v=6"/>
+    <script type="text/javascript" src="/static-content/js/leaflet.js"></script>
+    <script type="text/javascript" src="/static-content/js/leaflet-hash.js"></script>
+    <script type="text/javascript" src="/static-content/js/leaflet-areaselect.js"></script>
+    <script type="text/javascript" src="/static-content/js/main.js?v=5"></script>
+</head>
+<body>
+<header>
+    <div class="logo-area">
+        <img class="logo" src="/static-content/img/logo.png" alt="Maps"/>
+    </div>
+    <div class="nav-area">
+        <div class="nav">
+            <ul>
+                <li>
+                    <a href="#" onclick="return toggleAreaSelector();" title="{*}">
+                    <img class="icon" src="/static-content/img/bounding-box.svg" alt="{*}">
+                    </a>
+                </li>
+                <li>
+                    <a href="" onclick="return toggleCenterCross();" title="{*}">
+                    <img src="/static-content/img/crosshair.svg" alt="{*}">
+                    </a>
+                </li>
+                <li>
+                    <a href="" onclick="return openModalDialog('/map/openMapSource', initializeMapSourceRadios);" title="{*}">
+                    <img src="/static-content/img/map.svg" alt="{*}">
+                    </a>
+                </li>
+                <li>
+                    <a href="" onclick="return openModalDialog('/map/openLayerSource', initializeLayerSourceRadios);" title="{*}">
+                    <img src="/static-content/img/layers.svg" alt="{*}">
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="return toggleRoutePanel();" title="{*}">
+                    <img class="icon" src="/static-content/img/signpost.svg" alt="{*}">
+                    </a>
+                </li>
+                <li>
+                    <a href="" onclick="clearMapAddons(); hideRoutePanel(); return openModalDialog('/map/openAddTrack');" title="{*}">
+                    <img src="/static-content/img/person-walking.svg" alt="{*}">
+                    </a>
+                </li>
+                <li>
+                    <a href="" onclick="clearMapAddons(); hideRoutePanel(); return openModalDialog('/map/openSearch');" title="{*}">
+                    <img src="/static-content/img/search.svg" alt="{*}">
+                    </a>
+                </li>
+                <!--1-->
+                <li>
+                    <a href="/user/logout" title="{*}">
+                    <img src="/static-content/img/person-fill.svg" alt="{*}">
+                    </a>
+                </li>
+                <!--1-->
+                <li>
+                    <a href="" onclick="return openModalDialog('/user/openLogin');" title="{*}">
+                    <img src="/static-content/img/person.svg" alt="{*}">
+                    </a>
+                </li>
+                <!--3-->
+            </ul>
+        </div>
+    </div>
+</header>
+<main id="main" role="main">
+    <div id="map"></div>
+    <div id="centerCross" style="display: none">
+        <a href="#" onclick="openModalDialog('/map/openCenterInfo', initializeCenterInfo);"><img src="/static-content/img/crosshair.svg" alt=""/></a>
+    </div>
+    <div id="routePanel" style="display: none">
+        <div class="bold">{*}</div>
+        <form>
+            <div class="formGroup">
+                <div>
+                    <span>{*}</span>&nbsp;<a href="" onclick="return route.setClickForStart();">{*}&nbsp;<img src="/static-content/img/marker-green.png" alt=""/> </a>
+                </div>
+                <div id="routeStartLabel"></div>
+                <input type="hidden" name="routeStartLatitude" id="routeStartLatitude" value="">
+                <input type="hidden" name="routeStartLongitude" id="routeStartLongitude" value="">
+                <div id="routeStartName"></div>
+            </div>
+            <div class="formGroup">
+                <div>
+                    <span>{*}</span>&nbsp;<a href="" onclick="return route.setClickForEnd();">{*}&nbsp;<img src="/static-content/img/marker-red.png" alt=""/></a>
+                </div>
+                <div id="routeEndLabel"></div>
+                <input type="hidden" name="routeEndLatitude" id="routeEndLatitude" value="">
+                <input type="hidden" name="routeEndLongitude" id="routeEndLongitude" value="">
+                <div id="routeEndName"></div>
+            </div>
+            <div class="formGroup">
+                <div>{*}</div>
+                <select name="routeProfile" id="routeProfile">
+                    <option value="foot">{*}</option>
+                    <option value="bike">{*}></option>
+                    <option value="car">{*}</option>
+                </select>
+            </div>
+            <button class="primary" onclick="return route.requestRoute();">{*}</button>
+        </form>
+        <div id="routeInstructions" style="margin-top:1rem;"></div>
+    </div>
+</main>
+<footer>
+    <div>
+        &copy; {*}
+    </div>
+    <div>
+        <a href="{*}" target="_blank">{*}</a>
+    </div>
+    <div id="latlng"></div>
+</footer>
+<dialog></dialog>
+<div id="cookieBanner">
+    {*}
+    <button onclick="acceptCookie()">
+        {*}
+    </button>
+</div>
+</body>
+<script type="text/javascript">
+    let locale = '{*}';
+    var tileUrls = {};
+    var layerUrls = {};
+    var layerName;
+    <!--4-->
+        tileUrls['{*}'] = '{*}';
+    <!--5-->
+        layerUrls['{*}'] = '{*}';
+    <!--6-->
+        layerName = '{*}';
+    <!--7-->
+    mapData = new MapData(
+        {*},
+        {*},
+        {*},
+        '{*}',
+        tileUrls,
+        layerName,
+        layerUrls)
+    ;
+    if (cookieAccepted()){
+        mapData.readMapDataCookie();
+    }
+    let map = L.map('map').setView([mapData.latitude, mapData.longitude], mapData.zoom);
+    let tileLayer = L.tileLayer(mapData.getTileLayerUrl(), {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+    });
+    tileLayer.addTo(map);
+    var layerLayer = null;
+    if (mapData.layerType != null){
+        layerLayer = L.tileLayer(mapData.getLayerLayerUrl(), {
+        });
+        layerLayer.addTo(map);
+    }
+    let hash = L.hash(map);
+    initializeMapEvents();
+    let areaSelect = null;
+    initializeCookieBanner();
+</script>
+</html>

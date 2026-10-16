@@ -1,0 +1,31 @@
+
+<div class="dialog md">
+    <div class="modalHeader">
+        {*}
+        <img class="closeIcon" src="/static-content/img/x-lg.svg" alt = "close" onclick="closeModalDialog();"/>
+    </div>
+    <div class="modalBody">
+        <form class="form" id="layerSourceForm" name="layerSourceForm" accept-charset="UTF-8">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="layerSource" id="layerSource-none" value="none">
+                <label class="form-check-label" for="layerSource-none">
+                    {*}
+                </label>
+            </div>
+            <!--1-->
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="layerSource" id="layerSource-{*}" value="{*}">
+                <label class="form-check-label" for="layerSource-{*}">
+                    {*}
+                </label>
+            </div>
+            <!--2-->
+        </form>
+    </div>
+    <div class="modalFooter">
+        <button class="primary" onclick="setLayerSource();">{*}</button>
+        <button onclick="closeModalDialog()">{*}</button>
+    </div>
+</div>
+
+

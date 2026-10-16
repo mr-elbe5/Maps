@@ -8,11 +8,11 @@
  */
 package de.elbe5.user;
 
-import de.elbe5.application.Configuration;
+import de.elbe5.application.MapsConfiguration;
 import de.elbe5.base.*;
 import de.elbe5.request.*;
-import de.elbe5.servlet.Controller;
 import de.elbe5.response.*;
+import de.elbe5.servlet.Controller;
 
 public class UserController extends Controller {
 
@@ -22,8 +22,21 @@ public class UserController extends Controller {
         return instance;
     }
 
+    public static void setLoggedIn(boolean loggedIn, RequestData rdata){
+        rdata.setSessionObject("login", loggedIn ? Boolean.TRUE : Boolean.FALSE);
+    }
+
+    @Override
+    public String getKey() {
+        return "user";
+    }
+
+    public static boolean isLoggedIn(RequestData rdata){
+        return rdata.getSessionObject("login") == Boolean.TRUE ;
+    }
+
     public IResponse openLogin(RequestData rdata) {
-        return new ForwardResponse("/WEB-INF/_jsp/ajax/login.ajax.jsp");
+        return new TemplateResponse(LoginTemplate.instance);
     }
 
     public IResponse login(RequestData rdata) {
@@ -31,18 +44,15 @@ public class UserController extends Controller {
         //Log.info("user: " + user);
         String password = rdata.getAttributes().getString("password");
         //Log.info("password: " + password);
-        rdata.setLoggedIn(Configuration.getLoginName().equals(user) && Configuration.getPassword().equals(password));
-        Log.info("logged in: " + rdata.isLoggedIn());
-        return new ForwardResponse("/");
+        setLoggedIn(MapsConfiguration.getLoginName().equals(user) && MapsConfiguration.getPassword().equals(password), rdata);
+        Log.info("logged in: " + isLoggedIn(rdata));
+        return new MainResponse();
     }
 
     public IResponse logout(RequestData rdata) {
-        rdata.setLoggedIn(false);
+        setLoggedIn(false, rdata);
         rdata.resetSession();
-        String next = rdata.getAttributes().getString("next");
-        if (!next.isEmpty())
-            return new ForwardResponse(next);
-        return new ForwardResponse("/");
+        return new MainResponse();
     }
 
 }

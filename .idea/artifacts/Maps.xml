@@ -5,12 +5,15 @@
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
           <element id="module-output" name="Maps" />
+          <element id="module-output" name="Elbe5Base" />
         </element>
         <element id="directory" name="lib">
-          <element id="library" level="project" name="baselibs" />
+          <element id="library" level="project" name="lib" />
+          <element id="library" level="project" name="json" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="Maps/web/Web" />
+      <element id="javaee-facet-resources" facet="Elbe5Base/web/Web" />
     </root>
   </artifact>
 </component>

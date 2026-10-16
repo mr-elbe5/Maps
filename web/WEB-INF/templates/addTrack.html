@@ -1,0 +1,23 @@
+
+<div class="dialog md">
+    <div class="modalHeader">
+        {*}
+        <img class="closeIcon" src="/static-content/img/x-lg.svg" alt = "close" onclick="closeModalDialog();"/>
+    </div>
+    <div class="modalBody">
+        <form id="form" enctype="multipart/form-data">
+            <div class="input-group mb-3">
+                <div class="fileInput">
+                    <input type="file" name="track" accept=".gpx" class="addTrackInput" id="trackInput" aria-describedby="fileHelp">
+                    <label class="hint" for="trackInput">
+                        {*}
+                    </label>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modalFooter">
+        <button class="primary" onclick="addGPXTrack('#trackInput');">{*}</button>
+        <button onclick="closeModalDialog()">{*}</button>
+    </div>
+</div>

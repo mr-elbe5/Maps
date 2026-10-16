@@ -1,0 +1,26 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/commons-compress-1.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/jsoup-1.11.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/commons-collections4-4.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/catalina.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/jsp-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/servlet-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/jasper.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/commons-lang3-3.12.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/commons-logging-1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/commons-codec-1.15.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/commons-io-2.11.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/postgresql-42.2.18.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/metadata-extractor-2.18.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/activation-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/commons-text-1.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/log4j-api-2.18.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/commons-crypto-1.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Elbe5Base/lib/commons-math3-3.6.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

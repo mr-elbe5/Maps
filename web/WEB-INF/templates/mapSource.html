@@ -1,0 +1,25 @@
+
+<div class="dialog md">
+    <div class="modalHeader">
+        {*}
+        <img class="closeIcon" src="/static-content/img/x-lg.svg" alt = "close" onclick="closeModalDialog();"/>
+    </div>
+    <div class="modalBody">
+        <form class="form" id="mapSourceForm" name="mapSourceForm" accept-charset="UTF-8">
+            <!--1-->
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="mapSource" id="mapSource-{*}" value="{*}">
+                <label class="form-check-label" for="mapSource-{*}">
+                    {*}
+                </label>
+            </div>
+            <!--2-->
+        </form>
+    </div>
+    <div class="modalFooter">
+        <button class="primary" onclick="setMapSource();">{*}</button>
+        <button onclick="closeModalDialog()">{*}</button>
+    </div>
+</div>
+
+

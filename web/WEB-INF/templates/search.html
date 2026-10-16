@@ -1,0 +1,34 @@
+
+<div class="dialog md">
+    <div class="modalHeader">
+        {*}
+        <img class="closeIcon" src="/static-content/img/x-lg.svg" alt = "close" onclick="closeModalDialog();"/>
+    </div>
+    <div class="modalBody">
+        <form>
+            <div class="formGroup">
+                <input type="text" id="searchInput" placeholder="{*}">
+                <div class="append">
+                    <button onclick="return startSearch();">
+                        <img src="/static-content/img/search.svg" alt="{*}"/>
+                    </button>
+                </div>
+            </div>
+        </form>
+        <div id="searchResults"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    let searchInput = document.querySelector('#searchInput');
+    setTimeout(function() { searchInput.focus() }, 500);
+
+    searchInput.keypress(function(event){
+        let keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode === 13){
+            event.preventDefault();
+            startSearch();
+        }
+    });
+</script>
+

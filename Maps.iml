@@ -19,8 +19,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="baselibs" level="project" />
+    <orderEntry type="library" exported="" name="json" level="project" />
+    <orderEntry type="library" exported="" name="lib" level="project" />
     <orderEntry type="library" name="catalina" level="project" />
-    <orderEntry type="library" name="json" level="project" />
+    <orderEntry type="module" module-name="Elbe5Base" exported="" />
   </component>
 </module>

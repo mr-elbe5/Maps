@@ -9,10 +9,12 @@
 package de.elbe5.map;
 
 import de.elbe5.request.RequestData;
-import de.elbe5.response.ForwardResponse;
 import de.elbe5.response.IResponse;
+import de.elbe5.response.MainResponse;
+import de.elbe5.response.TemplateResponse;
 import de.elbe5.servlet.Controller;
 
+@SuppressWarnings("unused")
 public class MapController extends Controller {
 
     private static final MapController instance = new MapController();
@@ -22,28 +24,32 @@ public class MapController extends Controller {
     }
 
     @Override
+    public String getKey() {
+        return "map";
+    }
+
     public IResponse showHome(RequestData rdata) {
-        return new ForwardResponse("/WEB-INF/_jsp/main.jsp");
+        return new MainResponse();
     }
 
     public IResponse openMapSource(RequestData rdata) {
-        return new ForwardResponse("/WEB-INF/_jsp/ajax/mapSource.ajax.jsp");
+        return new TemplateResponse(MapSourceTemplate.instance);
     }
 
     public IResponse openLayerSource(RequestData rdata) {
-        return new ForwardResponse("/WEB-INF/_jsp/ajax/layerSource.ajax.jsp");
+        return new TemplateResponse(LayerSourceTemplate.instance);
     }
 
     public IResponse openCenterInfo(RequestData rdata) {
-        return new ForwardResponse("/WEB-INF/_jsp/ajax/centerInfo.ajax.jsp");
+        return new TemplateResponse(CenterInfoTemplate.instance);
     }
 
     public IResponse openAddTrack(RequestData rdata) {
-        return new ForwardResponse("/WEB-INF/_jsp/ajax/addTrack.ajax.jsp");
+        return new TemplateResponse(AddTrackTemplate.instance);
     }
 
     public IResponse openSearch(RequestData rdata) {
-        return new ForwardResponse("/WEB-INF/_jsp/ajax/search.ajax.jsp");
+        return new TemplateResponse(SearchTemplate.instance);
     }
 
 }
